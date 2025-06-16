@@ -8,56 +8,8 @@
 #include <ddr_internal.h>
 #include	<cpg.h>
 #include "cpudrv.h"
-
-#if (DDR4 == 1)
-
-#if (DDR_SIZE_4GB == 1)
-#include "param_mc_C-010_D4-01-1.c"
-#elif (DDR_SIZE_2GB == 1)
-#include "param_mc_C-010_D4-01-2.c"
-#elif (DDR_SIZE_2GB_1PCS == 1)
-#include "param_mc_C-011_D4-01-1.c"
-#elif (DDR_SIZE_1GB_1PCS == 1)
-#include "param_mc_C-011_D4-01-2.c"
-#elif (DDR_SIZE_512MB_1PCS == 1)
-#include "param_mc_C-011_D4-02-3.c"
-#else
-#error "Unknown size."
-#endif
-#if (SWIZZLE_T1C == 1)
-#include "param_swizzle_T1c.c"
-#elif (SWIZZLE_T1BC == 1)
-#include "param_swizzle_T1bc.c"
-#elif (SWIZZLE_T2C == 1)
-#include "param_swizzle_T2c.c"
-#elif (SWIZZLE_T3BC == 1)
-#include "param_swizzle_T3bc.c"
-#elif (SWIZZLE_T3BCUD == 1)
-#include "param_swizzle_T3bcud.c"
-#elif (SWIZZLE_T3BCUD2 == 1)
-#include "param_swizzle_T3bcud2.c"
-#else
-#error "Unknown swizzle."
-#endif
-
-#else
-
-#if (DDR_SIZE_1GB == 1)
-#include "param_mc_C-010_D3-02-2.c"
-#elif (DDR_SIZE_512MB_1PCS == 1)
-#include "param_mc_C-011_D3-01-2.c"
-#else
-#error "Unknown size."
-#endif
-#if (SWIZZLE_T3CL == 1)
-#include "param_swizzle_T3cl.c"
-#elif (SWIZZLE_T3BCUL == 1)
-#include "param_swizzle_T3bcul.c"
-#else
-#error "Unknown swizzle."
-#endif
-
-#endif
+#include "ddr.h"
+#include "ddrcheck.h"
 
 #define	CEIL(a, div)	(((a) + ((div) - 1)) / (div))
 #define	_MIN(a, b)		((a) < (b) ? (a) : (b))
@@ -75,19 +27,18 @@ void panic(void)
 	while(1);
 }
 
-extern const uint32_t mc_init_tbl[MC_INIT_NUM][2];
-extern const uint32_t mc_odt_pins_tbl[4];
-extern const uint32_t mc_mr1_tbl[2];
-extern const uint32_t mc_mr2_tbl[2];
-extern const uint32_t mc_mr5_tbl[2];
-extern const uint32_t mc_mr6_tbl[2];
-extern const uint32_t mc_phy_settings_tbl[MC_PHYSET_NUM][2];
-extern const uint32_t swizzle_mc_tbl[SWIZZLE_MC_NUM][2];
-extern const uint32_t swizzle_phy_tbl[SIZZLE_PHY_NUM][2];
-extern const char ddr_an_version[];
+uint32_t mc_odt_pins_tbl[4];
+uint32_t mc_mr1_tbl[2];
+uint32_t mc_mr2_tbl[2];
+uint32_t mc_mr5_tbl[2];
+uint32_t mc_mr6_tbl[2];
+uint32_t mc_phy_settings_tbl[MC_PHYSET_NUM][2];
+uint32_t swizzle_mc_tbl[SWIZZLE_MC_NUM][2];
+uint32_t swizzle_phy_tbl[SIZZLE_PHY_NUM][2];
+char ddr_an_version[8];
+uint32_t mc_init_tbl[MC_INIT_NUM][2];
 
 // prototypes
-void ddr_setup(void);
 static void disable_phy_clk(void);
 static void program_mc1(uint8_t *lp_auto_entry_en);
 static void program_phy1(uint32_t sl_lanes, uint32_t byte_lanes);
@@ -102,7 +53,7 @@ static void program_phy2(void);
 static void program_mc2(void);
 
 // main
-void ddr_setup(void)
+void ddr_setup(opt_delay_flg_t runOptDelay)
 {
 	uint32_t	sl_lanes, byte_lanes;
 	uint8_t		runBITLVL, runSL, runVREF;

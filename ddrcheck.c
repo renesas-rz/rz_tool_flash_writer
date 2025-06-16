@@ -11,6 +11,7 @@
 #include "ramckmdl.h"
 #include "devdrv.h"
 #include "ddrcheck.h"
+#include "ddr.h"
 
 uintptr_t	gErrDdrAdd;
 uint32_t	gErrDdrData,gTrueDdrData;
@@ -360,8 +361,13 @@ static int32_t TPRAMCK( uint8_t *startAddr, uint8_t *endAddr )
 
 void dgDdrTest(void)
 {
-	uint32_t readData;
+	if (f_ddr_param_initialized == 0)
+	{
+		PutStr("DDR not initialized, please send DDR parameters via \'DDRP\' command", 1);
+		return;
+	}
 
+	uint32_t readData;
 	PutStr("=== DDR R/W CHECK ====",1);
 #if (RZG2L == 1)
 	PutStr("=== RZ/G2L (Memory controller is only channel 1) ===",1);
@@ -419,8 +425,131 @@ void dgDdrTest(void)
 #endif
 }
 
+static void fill_data_arr1D(uint32_t *dest, uint8_t *src, uint16_t size, uint16_t *offset){
+    for (int i = 0; i < size; i++) {
+		dest[i] = 	(uint32_t)src[*offset] |
+					((uint32_t)src[*offset + 1] << 8)  |
+					((uint32_t)src[*offset + 2] << 16) |
+					((uint32_t)src[*offset + 3] << 24);
+		*offset += 4;
+    }
+}
+
+static void fill_data_arr2D(uint32_t dest[][2], uint8_t *src, uint16_t size, uint16_t *offset) {
+    for (int i = 0; i < size; i++) {
+        for (int j = 0; j < 2; j++) {
+            dest[i][j] =  (uint32_t)src[*offset] |
+                          ((uint32_t)src[*offset + 1] << 8)  |
+                          ((uint32_t)src[*offset + 2] << 16) |
+                          ((uint32_t)src[*offset + 3] << 24);
+
+            *offset += 4;
+        }
+    }
+}
+
+static void fill_data_char_arr1D(char *dest, char *src, uint8_t size, uint16_t *offset){
+    for (int i = 0; i < size; i++) {
+		dest[i] = (char)src[*offset];
+		*offset += 1;
+    }
+}
+
+static uint8_t InputFileSize( uint32_t *fileSize )
+{
+	uint32_t loop;
+	uint32_t wrData;
+	int8_t str[16];
+	int8_t buf[16];
+	int8_t chCnt = 0;
+	int8_t chPtr;
+
+	loop = 1;
+	while(loop)
+	{
+		PutStr("Please Input File size(byte) : H'",0);
+		GetStr(str,&chCnt);
+		chPtr = 0;
+		if (!GetStrBlk(str,buf,&chPtr,0))
+		{
+			if (chPtr == 1)
+			{	/* Case Return */
+				return(0);
+			}
+			else
+			{
+				if (HexAscii2Data((uint8_t*)buf,&wrData))
+				{
+					PutStr("Syntax Error",1);
+				}
+				else
+				{
+					*fileSize = wrData;
+					loop = 0;
+				}
+			}
+		}
+	}
+
+	return(1);
+}
+
+/****************************************************************
+	MODULE			: dgDdrLoadParam			*
+	FUNCTION		: Load DDR Parameters to RAM		*
+	COMMAND			: DDRP			*
+	INPUT PARAMETER		: DDRP			*
+*****************************************************************/
+void dgDdrLoadParam()
+{
+	uint32_t received = 0U;
+	uint32_t fileSize;
+	uint16_t offset = 0;
+	uint8_t chkInput;
+	uint8_t byteData;
+	uint8_t ddr_param_buf[DDR_PARAM_FIXED_SIZE];
+
+	chkInput = InputFileSize( &fileSize );
+	if (1 != chkInput || fileSize != DDR_PARAM_FIXED_SIZE)
+	{
+		/* The size of the DDR parameters binary is calculated as DDR_PARAM_FIXED_SIZE = 3776 bytes for RZ/G2L */
+		PutStr("Input file size error: DDR parameter file must be 3776 bytes (H'EC0) in size!", 1);
+		return;
+	}
+	PutStr("Please send ! (binary)",1);
+
+	/* Receiving DDR parameters */
+	while (received < DDR_PARAM_FIXED_SIZE)
+	{
+		GetChar(&byteData);
+		ddr_param_buf[received++] = byteData;
+	}
+
+	/* Load ddr parameters into array local */
+	fill_data_arr1D(mc_odt_pins_tbl, ddr_param_buf, 4, &offset);
+	fill_data_arr1D(mc_mr1_tbl, ddr_param_buf, 2, &offset);
+	fill_data_arr1D(mc_mr2_tbl, ddr_param_buf, 2, &offset);
+	fill_data_arr1D(mc_mr5_tbl, ddr_param_buf, 2, &offset);
+	fill_data_arr1D(mc_mr6_tbl, ddr_param_buf, 2, &offset);
+	fill_data_arr2D(mc_phy_settings_tbl, ddr_param_buf, MC_PHYSET_NUM, &offset);
+	fill_data_arr2D(swizzle_mc_tbl, ddr_param_buf, SWIZZLE_MC_NUM, &offset);
+	fill_data_arr2D(swizzle_phy_tbl, ddr_param_buf, SIZZLE_PHY_NUM, &offset);
+	fill_data_char_arr1D(ddr_an_version, ddr_param_buf, 8, &offset);
+	fill_data_arr2D(mc_init_tbl, ddr_param_buf, MC_INIT_NUM, &offset);
+
+	f_ddr_param_initialized = 1;
+	PutStr("DDR parameters loaded", 1);
+	ddr_setup(OPT_DELAY_RUN);
+}
+
 void dgRamTest(void)
 {
+	if (f_ddr_param_initialized == 0)
+	{
+		PutStr("DDR not initialized, please send DDR parameters via \'DDRP\' command", 1);
+		return;
+	}
+
 	uint64_t ramck1st,ramck2nd;
 	uint32_t setPara;
 

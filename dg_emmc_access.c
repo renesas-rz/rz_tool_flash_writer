@@ -171,6 +171,11 @@ static EMMC_ERROR_CODE	dg_emmc_init(void)
 *****************************************************************/
 void	dg_emmc_write(EMMC_WRITE_COMMAND wc)
 {
+	if (f_ddr_param_initialized == 0)
+	{
+		PutStr("DDR not initialized, please send DDR parameters via \'DDRP\' command", 1);
+		return;
+	}
 
 	EMMC_ERROR_CODE result;
 	EMMC_SECTOR	sectorData;

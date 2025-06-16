@@ -558,6 +558,7 @@ void mem_copy(uint32_t prgStartAd, uint32_t sector_Ad, uint32_t accessSize)
 	memcpy((void *)dst, (const void *)src, accessSize);
 }
 
+#if INTERNAL_MEMORY_ONLY == 0
 /****************************************************************
 	MODULE			: dgG2InfoSpiflash0_BP		*
 	FUNCTION		: read BP spi Spiflash memory	*
@@ -566,6 +567,12 @@ void mem_copy(uint32_t prgStartAd, uint32_t sector_Ad, uint32_t accessSize)
 *****************************************************************/
 void dgG2InfoSpiflash0_BP(void)
 {
+	if (f_ddr_param_initialized == 0)
+	{
+		PutStr("DDR not initialized, please send DDR parameters via \'DDRP\' command", 1);
+		return;
+	}
+
 	char		str[16];
 	uint32_t	bootProgramSize;
 	uint32_t	spiFlashStatAdd, rdBufstatAdd;
@@ -597,6 +604,12 @@ void dgG2InfoSpiflash0_BP(void)
 *****************************************************************/
 void dgG2InfoSpiflash0_BP_S(void)
 {
+	if (f_ddr_param_initialized == 0)
+	{
+		PutStr("DDR not initialized, please send DDR parameters via \'DDRP\' command", 1);
+		return;
+	}
+
 	char		str[16];
 	uint32_t	change, size;
 	uint32_t	spiFlashStatAdd,rdBufstatAdd;
@@ -641,6 +654,7 @@ void dgG2InfoSpiflash0_BP_S(void)
 		PutStr(" complete!", 1);
 	}
 }
+#endif /* INTERNAL_MEMORY_ONLY == 0 */
 
 /********************************************************
 	MODULE			: dgClearSpiflash0	*
@@ -688,6 +702,12 @@ void dgClearSpiflash0(void)
 //////////////////////////////////////////
 static void XLoadSpiflash0_2(uint32_t mode)
 {
+	if (f_ddr_param_initialized == 0)
+	{
+		PutStr("DDR not initialized, please send DDR parameters via \'DDRP\' command", 1);
+		return;
+	}
+
 	char		str[64];
 	uint32_t	readManuId, readDevId;
 

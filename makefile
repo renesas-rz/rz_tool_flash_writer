@@ -15,8 +15,6 @@ ifeq ("$(BOARD)", "RZG2L_SMARC")
 FILENAME_ADD = _RZG2L_SMARC
 DEVICE   = RZG2L
 DDR_TYPE = DDR4
-DDR_SIZE = 2GB
-SWIZZLE  = T1C
 else ifeq ("$(BOARD)", "RZG2L_SMARC_PMIC")
 #--------------------------------------
 # RZ/G2L Smarc PMIC Edition board
@@ -24,8 +22,6 @@ else ifeq ("$(BOARD)", "RZG2L_SMARC_PMIC")
 FILENAME_ADD = _RZG2L_SMARC_PMIC
 DEVICE   = RZG2L
 DDR_TYPE = DDR4
-DDR_SIZE = 2GB_1PCS
-SWIZZLE  = T1BC
 else ifeq ("$(BOARD)", "RZG2L_15MMSQ_DEV")
 #--------------------------------------
 # RZ/G2L 15MMSQ Dev board
@@ -33,8 +29,6 @@ else ifeq ("$(BOARD)", "RZG2L_15MMSQ_DEV")
 FILENAME_ADD = _RZG2L_15MMSQ_DEV
 DEVICE   = RZG2L
 DDR_TYPE = DDR4
-DDR_SIZE = 4GB
-SWIZZLE  = T1C
 else ifeq ("$(BOARD)", "RZG2L_21MMSQ_DEV")
 #--------------------------------------
 # RZ/G2L 21MMSQ Dev board
@@ -42,8 +36,6 @@ else ifeq ("$(BOARD)", "RZG2L_21MMSQ_DEV")
 FILENAME_ADD = _RZG2L_21MMSQ_DEV
 DEVICE   = RZG2L
 DDR_TYPE = DDR4
-DDR_SIZE = 4GB
-SWIZZLE  = T2C
 else ifeq ("$(BOARD)", "RZG2LC_SMARC")
 #--------------------------------------
 # RZ/G2LC Smarc board
@@ -51,8 +43,6 @@ else ifeq ("$(BOARD)", "RZG2LC_SMARC")
 FILENAME_ADD = _RZG2LC_SMARC
 DEVICE   = RZG2LC
 DDR_TYPE = DDR4
-DDR_SIZE = 1GB_1PCS
-SWIZZLE  = T3BC
 else ifeq ("$(BOARD)", "RZG2LC_DEV")
 #--------------------------------------
 # RZ/G2LC Dev board
@@ -60,8 +50,6 @@ else ifeq ("$(BOARD)", "RZG2LC_DEV")
 FILENAME_ADD = _RZG2LC_DEV
 DEVICE   = RZG2LC
 DDR_TYPE = DDR3L
-DDR_SIZE = 1GB
-SWIZZLE  = T3CL
 else ifeq ("$(BOARD)", "RZG2UL_TYPE1_DEV")
 #--------------------------------------
 # RZ/G2UL Type1 DDR4 Dev board
@@ -69,8 +57,6 @@ else ifeq ("$(BOARD)", "RZG2UL_TYPE1_DEV")
 FILENAME_ADD = _RZG2UL_TYPE1_DEV
 DEVICE   = RZG2UL
 DDR_TYPE = DDR4
-DDR_SIZE = 1GB_1PCS
-SWIZZLE  = T3BCUD
 DEVICE_TYPE = 1
 else ifeq ("$(BOARD)", "RZG2UL_TYPE1_DDR3L_DEV")
 #--------------------------------------
@@ -79,8 +65,6 @@ else ifeq ("$(BOARD)", "RZG2UL_TYPE1_DDR3L_DEV")
 FILENAME_ADD = _RZG2UL_TYPE1_DEV
 DEVICE   = RZG2UL
 DDR_TYPE = DDR3L
-DDR_SIZE = 512MB_1PCS
-SWIZZLE  = T3BCUL
 DEVICE_TYPE = 1
 else ifeq ("$(BOARD)", "RZG2UL_SMARC")
 #--------------------------------------
@@ -89,8 +73,6 @@ else ifeq ("$(BOARD)", "RZG2UL_SMARC")
 FILENAME_ADD = _RZG2UL_SMARC
 DEVICE   = RZG2UL
 DDR_TYPE = DDR4
-DDR_SIZE = 1GB_1PCS
-SWIZZLE  = T3BCUD2
 DEVICE_TYPE = 1
 else ifeq ("$(BOARD)", "RZG2UL_TYPE2_SMARC")
 #--------------------------------------
@@ -99,8 +81,6 @@ else ifeq ("$(BOARD)", "RZG2UL_TYPE2_SMARC")
 FILENAME_ADD = _RZG2UL_TYPE2_SMARC
 DEVICE   = RZG2UL
 DDR_TYPE = DDR4
-DDR_SIZE = 1GB_1PCS
-SWIZZLE  = T3BC
 DEVICE_TYPE = 2
 else ifeq ("$(BOARD)", "RZG2UL_TYPE2_DEV")
 #--------------------------------------
@@ -109,8 +89,6 @@ else ifeq ("$(BOARD)", "RZG2UL_TYPE2_DEV")
 FILENAME_ADD = _RZG2UL_TYPE2_DEV
 DEVICE   = RZG2UL
 DDR_TYPE = DDR3L
-DDR_SIZE = 1GB
-SWIZZLE  = T3CL
 DEVICE_TYPE = 2
 else ifeq ("$(BOARD)", "RZV2L_SMARC")
 #--------------------------------------
@@ -119,8 +97,6 @@ else ifeq ("$(BOARD)", "RZV2L_SMARC")
 FILENAME_ADD = _RZV2L_SMARC
 DEVICE   = RZV2L
 DDR_TYPE = DDR4
-DDR_SIZE = 4GB
-SWIZZLE  = T1C
 else ifeq ("$(BOARD)", "RZV2L_SMARC_PMIC")
 #--------------------------------------
 # RZ/V2L Smarc PMIC Edition board
@@ -128,8 +104,6 @@ else ifeq ("$(BOARD)", "RZV2L_SMARC_PMIC")
 FILENAME_ADD = _RZV2L_SMARC_PMIC
 DEVICE   = RZV2L
 DDR_TYPE = DDR4
-DDR_SIZE = 2GB_1PCS
-SWIZZLE  = T1BC
 else ifeq ("$(BOARD)", "RZV2L_15MMSQ_DEV")
 #--------------------------------------
 # RZ/V2L 15MMSQ Dev board
@@ -137,8 +111,6 @@ else ifeq ("$(BOARD)", "RZV2L_15MMSQ_DEV")
 FILENAME_ADD = _RZV2L_15MMSQ_DEV
 DEVICE   = RZV2L
 DDR_TYPE = DDR4
-DDR_SIZE = 4GB
-SWIZZLE  = T1C
 else ifeq ("$(BOARD)", "RZV2L_21MMSQ_DEV")
 #--------------------------------------
 # RZ/V2L 21MMSQ Dev board
@@ -146,8 +118,6 @@ else ifeq ("$(BOARD)", "RZV2L_21MMSQ_DEV")
 FILENAME_ADD = _RZV2L_21MMSQ_DEV
 DEVICE   = RZV2L
 DDR_TYPE = DDR4
-DDR_SIZE = 4GB
-SWIZZLE  = T2C
 else ifeq ("$(BOARD)", "RZA3UL_DEV")
 #--------------------------------------
 # RZ/A3UL DDR4 Dev board
@@ -155,8 +125,6 @@ else ifeq ("$(BOARD)", "RZA3UL_DEV")
 FILENAME_ADD = _RZA3UL_DEV
 DEVICE   = RZA3UL
 DDR_TYPE = DDR4
-DDR_SIZE = 1GB_1PCS
-SWIZZLE  = T3BCUD
 DEVICE_TYPE = 1
 else ifeq ("$(BOARD)", "RZA3UL_DDR3L_DEV")
 #--------------------------------------
@@ -165,8 +133,6 @@ else ifeq ("$(BOARD)", "RZA3UL_DDR3L_DEV")
 FILENAME_ADD = _RZA3UL_DEV
 DEVICE   = RZA3UL
 DDR_TYPE = DDR3L
-DDR_SIZE = 512MB_1PCS
-SWIZZLE  = T3BCUL
 DEVICE_TYPE = 1
 else ifeq ("$(BOARD)", "RZA3UL_SMARC")
 #--------------------------------------
@@ -175,8 +141,6 @@ else ifeq ("$(BOARD)", "RZA3UL_SMARC")
 FILENAME_ADD = _RZA3UL_SMARC
 DEVICE   = RZA3UL
 DDR_TYPE = DDR4
-DDR_SIZE = 1GB_1PCS
-SWIZZLE  = T3BCUD2
 DEVICE_TYPE = 1
 endif
 
@@ -223,7 +187,7 @@ CROSS_COMPILE ?= aarch64-elf-
 
 CFLAGS += -O0 -fno-stack-protector -fno-exceptions -fno-unwind-tables -fno-asynchronous-unwind-tables
 BOOT_DEF    = Writer
-FILE_NAME   = $(OUTPUT_DIR)/Flash_Writer_SCIF$(FILENAME_ADD)_$(DDR_TYPE)_$(DDR_SIZE)
+FILE_NAME   = $(OUTPUT_DIR)/Flash_Writer_SCIF$(FILENAME_ADD)_$(DDR_TYPE)
 
 ifeq ("$(DEVICE)", "RZG2L")
 	CFLAGS += -DRZG2L=1
@@ -246,57 +210,6 @@ ifeq ("$(DDR_TYPE)", "DDR4")
 endif
 ifeq ("$(DDR_TYPE)", "DDR3L")
 	CFLAGS += -DDDR3L=1
-endif
-
-ifeq ("$(DDR_SIZE)", "4GB")
-	CFLAGS += -DDDR_SIZE_4GB=1
-endif
-ifeq ("$(DDR_SIZE)", "2GB")
-	CFLAGS += -DDDR_SIZE_2GB=1
-endif
-ifeq ("$(DDR_SIZE)", "2GB_1PCS")
-	CFLAGS += -DDDR_SIZE_2GB_1PCS=1
-endif
-ifeq ("$(DDR_SIZE)", "1GB")
-	CFLAGS += -DDDR_SIZE_1GB=1
-endif
-ifeq ("$(DDR_SIZE)", "1GB_1PCS")
-	CFLAGS += -DDDR_SIZE_1GB_1PCS=1
-endif
-ifeq ("$(DDR_SIZE)", "512MB_1PCS")
-	CFLAGS += -DDDR_SIZE_512MB_1PCS=1
-endif
-
-ifeq ("$(SWIZZLE)", "T1C")
-	CFLAGS += -DSWIZZLE_T1C=1
-endif
-
-ifeq ("$(SWIZZLE)", "T1BC")
-	CFLAGS += -DSWIZZLE_T1BC=1
-endif
-
-ifeq ("$(SWIZZLE)", "T2C")
-	CFLAGS += -DSWIZZLE_T2C=1
-endif
-
-ifeq ("$(SWIZZLE)", "T3BC")
-	CFLAGS += -DSWIZZLE_T3BC=1
-endif
-
-ifeq ("$(SWIZZLE)", "T3CL")
-	CFLAGS += -DSWIZZLE_T3CL=1
-endif
-
-ifeq ("$(SWIZZLE)", "T3BCUL")
-	CFLAGS += -DSWIZZLE_T3BCUL=1
-endif
-
-ifeq ("$(SWIZZLE)", "T3BCUD")
-	CFLAGS += -DSWIZZLE_T3BCUD=1
-endif
-
-ifeq ("$(SWIZZLE)", "T3BCUD2")
-	CFLAGS += -DSWIZZLE_T3BCUD2=1
 endif
 
 ifeq ("$(DEVICE_TYPE)", "1")
