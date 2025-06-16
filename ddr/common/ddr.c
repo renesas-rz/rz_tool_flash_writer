@@ -61,12 +61,16 @@ void ddr_setup(opt_delay_flg_t runOptDelay)
 	uint32_t	tmp;
 	int i;
 
-	INFO("BL2: setup DDR (Rev. %s)\n", ddr_an_version);
-	// Step2 - Step11
+	PutStr("DDR Setup ", 0);
+	PutStr(ddr_an_version, 1);
+
+	// Step1 - Step11
 	cpg_active_ddr(disable_phy_clk);
+	PutStr("  Step1 - Step11 completed", 1);
 
 	// Step12
 	program_mc1(&lp_auto_entry_en);
+	PutStr("  Step12 completed", 1);
 
 	// Step13
 	tmp = read_mc_reg(DDRMC_R019);
@@ -76,13 +80,15 @@ void ddr_setup(opt_delay_flg_t runOptDelay)
 	runBITLVL	= (tmp >> 20) & 0x1;
 	runSL		= (tmp >> 21) & 0x1;
 	runVREF		= (tmp >> 25) & 0x1;
+	PutStr("  Step13 completed", 1);
 
 	// Step14
 	program_phy1(sl_lanes, byte_lanes);
+	PutStr("  Step14 completed", 1);
 
 	// Step15
-	while ((read_phy_reg(DDRPHY_R42) & 0x00000003) != sl_lanes)
-		;
+	while ((read_phy_reg(DDRPHY_R42) & 0x00000003) != sl_lanes);
+	PutStr("  Step15 completed", 1);
 
 	// Step16
 	ddr_ctrl_reten_en_n(0);
@@ -97,13 +103,17 @@ void ddr_setup(opt_delay_flg_t runOptDelay)
 	rmw_mc_reg(DDRMC_R020, 0xFFFFFEFF, 0x00000100);
 	udelay(1);
 	rmw_phy_reg(DDRPHY_R74, 0xFFF7FFFF, 0x00000000);
+	PutStr("  Step16 completed", 1);
 
 	// Step17
 	cpg_reset_ddr_mc();
 	ddr_ctrl_reten_en_n(1);
+	PutStr("  Step17 completed", 1);
 
 	// Step18-19
 	program_mc1(&lp_auto_entry_en);
+	PutStr("  Step18 completed", 1);
+	PutStr("  Step19 completed", 1);
 
 	// Step20
 	for (i = 0; i < ARRAY_SIZE(swizzle_mc_tbl); i++) {
@@ -112,45 +122,75 @@ void ddr_setup(opt_delay_flg_t runOptDelay)
 	for (i = 0; i < ARRAY_SIZE(swizzle_phy_tbl); i++) {
 		write_phy_reg(swizzle_phy_tbl[i][0], swizzle_phy_tbl[i][1]);
 	}
+	PutStr("  Step20 completed", 1);
 
 	// Step21
 	rmw_mc_reg(DDRMC_R000, 0xFFFFFFFE, 0x00000001);
+	PutStr("  Step21 completed", 1);
 
 	// Step22
-	while ((read_mc_reg(DDRMC_R021) & 0x02000000) != 0x02000000)
-		;
+	while ((read_mc_reg(DDRMC_R021) & 0x02000000) != 0x02000000);
+	PutStr("  Step22 completed", 1);
 
 	// Step23
 	rmw_mc_reg(DDRMC_R023, 0xFDFFFFFF, 0x02000000);
+	PutStr("  Step23 completed", 1);
 
 	// Step24
 	exec_trainingWRLVL(sl_lanes);
+	PutStr("  Step24 completed", 1);
 
 	// Step25
-	if (runVREF == 1)
+	if (runVREF == 1){
 		exec_trainingVREF(sl_lanes, byte_lanes);
+		PutStr("  Step25 completed", 1);
+	}
+	else{
+		PutStr("  Step25 Run VREF is skipped", 1);
+	}
 
 	// Step26
-	if (runBITLVL == 1)
+	if (runBITLVL == 1){
 		exec_trainingBITLVL(sl_lanes);
+		PutStr("  Step26 completed", 1);
+	}
+	else{
+		PutStr("  Step26 Run BIT LEVEL is skipped", 1);
+	}
 
 	// Step27
-	opt_delay(sl_lanes, byte_lanes);
+	if (runOptDelay == 1){
+		opt_delay(sl_lanes, byte_lanes);
+		PutStr("  Step27 completed", 1);
+	}
+	else{
+		PutStr("  Step27 Run Opt Delay is skipped", 1);
+	}
 
 	// Step28
-	if (runSL == 1)
+	if (runSL == 1){
 		exec_trainingSL(sl_lanes);
+		PutStr("  Step28 completed", 1);
+	}
+	else{
+		PutStr("  Step28 Run SL is skipped", 1);
+	}
 
 	// Step29
 	program_phy2();
+	PutStr("  Step29 completed", 1);
 
 	// Step30
 	program_mc2();
+	PutStr("  Step30 completed", 1);
 
 	// Step31 is skipped because ECC is unused.
+	PutStr("  Step31 is skipped because ECC is unused", 1);
 
 	// Step32
 	rmw_mc_reg(DDRMC_R006, 0xFFFFFFF0, lp_auto_entry_en & 0xF);
+	PutStr("  Step32 completed", 1);
+	PutStr("DDR init completed", 1);
 }
 
 static void disable_phy_clk(void)
