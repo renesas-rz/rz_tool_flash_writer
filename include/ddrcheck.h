@@ -3,6 +3,8 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
+#ifndef __DDRCHECK_H__
+#define __DDRCHECK_H__
 
 #define MC_ODT_PINS_TBL_NUM 4
 #define MC_MR1_TBL_NUM      2
@@ -17,6 +19,18 @@
                             MC_PHYSET_NUM*2 + SWIZZLE_MC_NUM*2 + SIZZLE_PHY_NUM*2 + \
                             DDR_AN_VERSION_NUM + MC_INIT_NUM *2)*4
 
+#if (RZG2L == 1)
+#define DDR_MEM_START_ADDRESS   0x40000040
+#define DDR_MEM_END_ADDRESS     0x13FFFFFFF
+#else
+#define DDR_MEM_START_ADDRESS   0x40000040
+#define DDR_MEM_END_ADDRESS     0x13FFFFFFF
+#endif
+
 void dgDdrLoadParam(void);
 void dgDdrTest(void);
-void dgRamTest(void);
+void dgDdrSimple(void);
+void dgDdrRandb(void);
+void dgDdrFixedb(void);
+
+#endif /*__DDRCHECK_H__*/

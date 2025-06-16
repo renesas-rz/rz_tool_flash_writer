@@ -6,6 +6,7 @@
 
 #pragma GCC optimize ("Og")
 
+#include <stdlib.h>
 #include "common.h"
 #include "dgtable.h"
 #include "ramckmdl.h"
@@ -334,24 +335,32 @@ static char DecodeForm5(uintptr_t *para1st, uintptr_t *para2nd, uint32_t *setPar
 
 static int32_t TPRAMCK( uint8_t *startAddr, uint8_t *endAddr )
 {
+	PutStr(" [ Write H'00               ] ", 1);
 	FillData8Bit(startAddr, endAddr, 0x00 );
+	PutStr(" [ Check H'00 -> Write H'55 ] ", 1);
 	if (CheckAndFillData8Bit(startAddr, endAddr, 0x55, 0x00))
 	{
 		return ERROR_END;
 	}
+	PutStr(" [ Check H'55 -> Write H'AA ] ", 1);
 	if (CheckAndFillData8Bit(startAddr, endAddr, 0xAA, 0x55))
 	{
 		return ERROR_END;
 	}
+	PutStr(" [ Check H'AA -> Write H'FF ] ", 1);
 	if (CheckAndFillData8Bit(startAddr, endAddr, 0xFF, 0xAA))
 	{
 		return ERROR_END;
 	}
+	PutStr(" [ Check H'FF               ] ", 1);
 	if (CheckData8Bit(startAddr, endAddr, 0xFF))
 	{
 		return ERROR_END;
 	}
+	PutStr("- Decoder Pattern Check ------", 1);
+	PutStr(" [ Write H'00,H'01,H'02 ... ] ", 1);
 	WriteIncData8Bit(startAddr, endAddr, 0x00);
+	PutStr(" [ Check H'00,H'01,H'02 ... ] ", 1);
 	if (CheckIncData8Bit(startAddr, endAddr, 0x00))
 	{
 		return ERROR_END;
@@ -542,7 +551,7 @@ void dgDdrLoadParam()
 	ddr_setup(OPT_DELAY_RUN);
 }
 
-void dgRamTest(void)
+void dgDdrSimple(void)
 {
 	if (f_ddr_param_initialized == 0)
 	{
@@ -550,53 +559,248 @@ void dgRamTest(void)
 		return;
 	}
 
-	uint64_t ramck1st,ramck2nd;
-	uint32_t setPara;
-
+	uint64_t startAdd, endAdd;
+	uint32_t setPara, l, loop;
 	char decRtn;
-	char str[10];
+	char str[16];
 
-	ramck1st=ramck2nd=0x0;
-	decRtn = DecodeForm5(&ramck1st,&ramck2nd,&setPara);
-	if (!(setPara&0x3))
+	startAdd = endAdd = 0x0;
+	decRtn = DecodeForm04(&startAdd, &endAdd, &loop, &setPara);
+	if ((decRtn == 1) || (setPara < 2))
 	{
-		PutStr("Syntax Error",1);	return;
-	}
-	else if (decRtn==1)
-	{
-		PutStr("Syntax Error",1);	return;
-	}
-	else if (decRtn==2)
-	{
-		PutStr("Address Size Error",1);	return;
-	}
-	else
-	{
-		PutStr("== RAM CHECK (Byte Access) ===",1);
-		PutStr("- Marching Data Check --------",1);
-		PutStr(" [ Write H'00               ]",1);
-		PutStr(" [ Check H'00 -> Write H'55 ]",1);
-		PutStr(" [ Check H'55 -> Write H'AA ]",1);
-		PutStr(" [ Check H'AA -> Write H'FF ]",1);
-		PutStr(" [ Check H'FF               ]",1);
-		PutStr("- Decoder Pattern Check ------",1);
-		PutStr(" [ Write H'00,H'01,H'02 ... ]",1);
-		PutStr(" [ Check H'00,H'01,H'02 ... ]",1);
-		PutStr("CHECK RESULT",0);
-	}
-	if (TPRAMCK( ((uint8_t *)ramck1st),((uint8_t *)(ramck1st+ramck2nd)) ) )
-	{
-		PutStr("---->NG",1);
-		Data2HexAscii_64(gSubErrAdd,str,CPU_BYTE_SIZE);
-		PutStr("ERROR ADDRESS:",0); PutStr(str,1);
-		Data2HexAscii_64(gSubErrData,str,CPU_BYTE_SIZE);
-		PutStr("ERROR DATA   :",0); PutStr(str,1);
-		Data2HexAscii_64(gSubTrueData,str,CPU_BYTE_SIZE);
-		PutStr("TRUE DATA    :",0); PutStr(str,1);
+		PutStr("Syntax Error", 1);
 		return;
 	}
+	if ((startAdd > endAdd) || (startAdd < DDR_MEM_START_ADDRESS) || (endAdd > DDR_MEM_END_ADDRESS))
+	{
+		PutStr("Address Out of Range", 1);
+#if (RZG2L == 1)
+		PutStr("Address range that can be specified is [40000040 - 13FFFFFFF]", 1);
+#endif
+	}
 	else
 	{
-		PutStr("---->OK",1);
+		if (setPara == 2)
+		{
+			loop = 1;
+		}
+		for (l = 0; l < loop; l++)
+		{
+			PutStr("== RAM CHECK (Byte Access) ===", 1);
+			PutStr("- Marching Data Check --------", 1);
+			if (TPRAMCK( ((uint8_t *)startAdd), ((uint8_t *)(endAdd)) ) )
+			{
+				PutStr("CHECK RESULT ---->NG", 1);
+				Data2HexAscii_64(gSubErrAdd,   str, CPU_BYTE_SIZE);
+				PutStr("ERROR ADDRESS:", 0); PutStr(str, 1);
+				Data2HexAscii_64(gSubErrData,  str, CPU_BYTE_SIZE);
+				PutStr("ERROR DATA   :", 0); PutStr(str, 1);
+				Data2HexAscii_64(gSubTrueData, str, CPU_BYTE_SIZE);
+				PutStr("TRUE DATA    :", 0); PutStr(str, 1);
+				return;
+			}
+			else
+			{
+				PutStr("CHECK RESULT ---->OK", 1);
+			}
+		}
+		Data2DecAscii(l, str);
+		PutStr(str, 0);
+		PutStr(" command executions successful", 1);
+	}
+}
+
+static int32_t TPRAMCK_RANDB(uint8_t *startAddr, uint8_t *endAddr)
+{
+	volatile uint8_t *pData, *pDataTmp, *randData;
+	uint32_t randDataBuf[4096];
+	uint32_t count = 0;
+	int i;
+
+	pData = (uint8_t *)startAddr;
+	while(1)
+	{
+		for (i = 0; i < 4096; i++)
+		{
+			randDataBuf[i] = rand();
+		}
+		// Write random data (Byte)
+		randData = (uint8_t *)randDataBuf;
+		pDataTmp = pData;
+		for (i = 0; i < 1024; i++)
+		{
+			*pDataTmp++ = *randData++;
+			*pDataTmp++ = *randData++;
+			*pDataTmp++ = *randData++;
+			*pDataTmp++ = *randData++;
+			*pDataTmp++ = *randData++;
+			*pDataTmp++ = *randData++;
+			*pDataTmp++ = *randData++;
+			*pDataTmp++ = *randData++;
+			*pDataTmp++ = *randData++;
+			*pDataTmp++ = *randData++;
+			*pDataTmp++ = *randData++;
+			*pDataTmp++ = *randData++;
+			*pDataTmp++ = *randData++;
+			*pDataTmp++ = *randData++;
+			*pDataTmp++ = *randData++;
+			*pDataTmp++ = *randData++;
+			if (pDataTmp >= endAddr)
+			{
+				break;
+			}
+		}
+		// Verify (Byte)
+		randData = (uint8_t *)randDataBuf;
+		for (i = 0; i < 16384; i++)
+		{
+			if (*pData++ != *randData++) goto error;
+			if (pData >= endAddr) break;
+		}
+		count += 16384;
+		if (count >= 0x1000000)
+		{
+			PutStr("#", 0);
+			count = 0;
+		}
+		if (pData >= endAddr)
+		{
+			PutStr("", 1);
+			return NORMAL_END;
+		}
+	}
+error:
+	pData--;
+	randData--;
+	gSubErrAdd   = (uint64_t)pData;
+	gSubErrData  = (uint64_t)*pData;
+	gSubTrueData = (uint64_t)*randData;
+	PutStr("", 1);
+	return ERROR_END;
+}
+
+void dgDdrRandb(void)
+{
+	if (f_ddr_param_initialized == 0)
+	{
+		PutStr("DDR not initialized, please send DDR parameters via \'DDRP\' command", 1);
+		return;
+	}
+
+	uint64_t startAdd, endAdd;
+	uint32_t setPara, l, loop;
+	int i;
+	char decRtn;
+	char str[16];
+
+	startAdd = endAdd = 0x0;
+	decRtn = DecodeForm04(&startAdd, &endAdd, &loop, &setPara);
+	if ((decRtn == 1) || (setPara < 2))
+	{
+		PutStr("Syntax Error",  1);
+		return;
+	}
+	if ((startAdd > endAdd) || (startAdd < DDR_MEM_START_ADDRESS) || (endAdd > DDR_MEM_END_ADDRESS))
+	{
+		PutStr("Address Out of Range", 1);
+#if (RZG2L == 1)
+		PutStr("Address range that can be specified is [40000040 - 13FFFFFFF]", 1);
+#endif
+	}
+	else
+	{
+		if (setPara == 2)
+		{
+			loop = 1;
+		}
+		for (l = 0; l < loop; l++)
+		{
+			PutStr("== RAM CHECK RAMDOM (Byte Access) === ", 1);
+			if (TPRAMCK_RANDB(((uint8_t *)startAdd), ((uint8_t *)(endAdd))))
+			{
+				PutStr("CHECK RESULT ---->NG", 1);
+				Data2HexAscii_64(gSubErrAdd,   str, CPU_BYTE_SIZE);
+				PutStr("ERROR ADDRESS:", 0); PutStr(str, 1);
+				Data2HexAscii_64(gSubErrData,  str, CPU_BYTE_SIZE);
+				PutStr("ERROR DATA   :", 0); PutStr(str, 1);
+				Data2HexAscii_64(gSubTrueData, str, CPU_BYTE_SIZE);
+				PutStr("TRUE DATA    :", 0); PutStr(str, 1);
+				return;
+			}
+			else
+			{
+				PutStr("CHECK RESULT ---->OK", 1);
+			}
+		}
+		Data2DecAscii(l, str);
+		PutStr(str, 0);
+		PutStr(" command executions successful", 1);
+	}
+};
+
+void dgDdrFixedb(void)
+{
+	if (f_ddr_param_initialized == 0)
+	{
+		PutStr("DDR not initialized, please send DDR parameters via \'DDRP\' command", 1);
+		return;
+	}
+
+	uint64_t startAdd, endAdd, val;
+	uint32_t setPara, l, loop;
+	int i;
+	char decRtn;
+	char str[16];
+
+	startAdd = endAdd = val = 0x0;
+	decRtn = DecodeForm05(&startAdd, &endAdd, &val, &loop, &setPara);
+	if ((decRtn == 1) || (setPara < 3))
+	{
+		PutStr("Syntax Error", 1);
+		return;
+	}
+	if ((startAdd > endAdd) || (startAdd < DDR_MEM_START_ADDRESS) || (endAdd > DDR_MEM_END_ADDRESS))
+	{
+		PutStr("Address Out of Range", 1);
+#if (RZG2L == 1)
+		PutStr("Address range that can be specified is [40000040 - 13FFFFFFF]", 1);
+#endif
+	}
+	else
+	{
+		if (setPara == 3)
+		{
+			loop = 1;
+		}
+		for (l = 0; l < loop; l++)
+		{
+			Data2HexAscii((uint8_t)val, str, SIZE_8BIT);
+			PutStr("== RAM CHECK FIXED DATA (Byte Access) === ", 1);
+			PutStr(" [ Write H'", 0);
+			PutStr(str, 0);
+			PutStr("               ] ", 1);
+			FillData8Bit((uint8_t *)startAdd, (uint8_t *)endAdd, (uint8_t)val);
+			PutStr(" [ Check H'", 0);
+			PutStr(str, 0);
+			PutStr("               ] ", 1);
+			if (CheckData8Bit((uint8_t *)startAdd, (uint8_t *)endAdd, (uint8_t)val))
+			{
+				PutStr("CHECK RESULT ---->NG", 1);
+				Data2HexAscii_64(gSubErrAdd,   str, CPU_BYTE_SIZE);
+				PutStr("ERROR ADDRESS:", 0); PutStr(str, 1);
+				Data2HexAscii_64(gSubErrData,  str, CPU_BYTE_SIZE);
+				PutStr("ERROR DATA   :", 0); PutStr(str, 1);
+				Data2HexAscii_64(gSubTrueData, str, CPU_BYTE_SIZE);
+				PutStr("TRUE DATA    :", 0); PutStr(str, 1);
+				return;
+			}
+			else
+			{
+				PutStr("CHECK RESULT ---->OK", 1);
+			}
+		}
+		Data2DecAscii(l, str);
+		PutStr(str, 0);
+		PutStr(" command executions successful", 1);
 	}
 }

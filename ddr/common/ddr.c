@@ -5,8 +5,9 @@
  */
 
 // include
+#include "common.h"
 #include <ddr_internal.h>
-#include	<cpg.h>
+#include <cpg.h>
 #include "cpudrv.h"
 #include "ddr.h"
 #include "ddrcheck.h"
