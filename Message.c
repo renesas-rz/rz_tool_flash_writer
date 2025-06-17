@@ -59,6 +59,9 @@ const char *const AllHelpMess[ALL_HELP_MESS_LINE] = {
 				" DDR_RB [sadr] [eadr] {loop}        Random data write-then-read checking of DDR",
 				" DDR_FB [sadr] [eadr] [data] {loop} Fixed data write-then-read checking of DDR",
 				"",
+				"        DQ margin checker command",
+				" DQ             DQ to DQS timing margin check",
+				"",
 #endif /* INTERNAL_MEMORY_ONLY == 0 */
 				" SUP            Scif speed UP (Change to speed up baud rate setting)",
 				" SUD            Scif speed DOWN (Change to speed down baud rate setting)",

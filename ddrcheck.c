@@ -4,8 +4,6 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#pragma GCC optimize ("Og")
-
 #include <stdlib.h>
 #include "common.h"
 #include "dgtable.h"
@@ -13,6 +11,9 @@
 #include "devdrv.h"
 #include "ddrcheck.h"
 #include "ddr.h"
+#include "ddr_write_pattern.h"
+
+static uint8_t f_ddr_first_init;
 
 uintptr_t	gErrDdrAdd;
 uint32_t	gErrDdrData,gTrueDdrData;
@@ -549,6 +550,7 @@ void dgDdrLoadParam()
 	f_ddr_param_initialized = 1;
 	PutStr("DDR parameters loaded", 1);
 	ddr_setup(OPT_DELAY_RUN);
+	f_ddr_first_init = 0;
 }
 
 void dgDdrSimple(void)
@@ -803,4 +805,56 @@ void dgDdrFixedb(void)
 		PutStr(str, 0);
 		PutStr(" command executions successful", 1);
 	}
+}
+
+void dgDdrEyeOpenTool(void)
+{
+	if (f_ddr_param_initialized == 0)
+	{
+		PutStr("DDR not initialized, please send DDR parameters via \'DDRP\' command", 1);
+		return;
+	}
+
+	uint32_t ddr_eye_buffer[512 * 2];	// Refer to write_pattern size.
+	static dmac_setting_t dmac_setting;
+	static open_eye_memory_t ddr_eye_mem;
+	uint32_t i;
+	uint64_t tmp;
+
+	dmac_setting.ch = 0;
+	dmac_setting.axi_base = 0;
+	dmac_init(&dmac_setting);
+	if(dmac_setting.axi_base == 0)
+	{
+		PutStr("",1);
+		PutStr("!!! DMAC Error !!!",1);
+		while(1);
+	}
+
+	ddr_eye_mem.p_rd_buf = &ddr_eye_buffer[0];
+	ddr_eye_mem.p_wr_pattern = &ddr_write_pattern_64bit[0];
+	ddr_eye_mem.p_wr_pattern_inv = &ddr_eye_buffer[0];
+	ddr_eye_mem.pattern_bytes = sizeof(ddr_write_pattern_64bit);
+
+	PutStr("",1);
+	PutStr("***********************************",1);
+	PutStr("******** DQ Margin Checker ********",1);
+	PutStr("***********************************",1);
+	PutStr("V2.0.0 June 8th, 2022.",1);
+
+	for(i = 0; i < (sizeof(ddr_eye_buffer) / sizeof(ddr_eye_buffer[0])); i+=2)
+	{
+		tmp = ~ddr_write_pattern_64bit[i / 2];
+		ddr_eye_buffer[i] = (uint32_t)(tmp & 0xFFFFFFFF);
+		ddr_eye_buffer[i + 1] = (uint32_t)((tmp >> 32) & 0xFFFFFFFF);
+	}
+
+	if(f_ddr_first_init == 0){
+		ddr_setup(OPT_DELAY_SKIP);
+		f_ddr_first_init = 1;
+	}else{
+		PutStr("DRAM Initialization was skipped. It has already done.",1);
+	}
+
+	ddr_eye_open_tool(&ddr_eye_mem, &dmac_setting);
 }

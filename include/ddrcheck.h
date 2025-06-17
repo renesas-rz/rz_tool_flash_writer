@@ -32,5 +32,6 @@ void dgDdrTest(void);
 void dgDdrSimple(void);
 void dgDdrRandb(void);
 void dgDdrFixedb(void);
+void dgDdrEyeOpenTool(void);
 
 #endif /*__DDRCHECK_H__*/

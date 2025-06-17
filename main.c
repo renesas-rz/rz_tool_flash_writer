@@ -71,8 +71,10 @@ void Main(void)
 	gDumpMode	= SIZE_8BIT;
 	gDumpStatus	= DISABLE;
 
+#if SERIAL_FLASH == 1
 	InitRPC_Mode();
 	ReadQspiFlashID(&readDevId);	/* dummy	*/
+#endif /* SERIAL_FLASH == 1 */
 
 	InitMain();
 	StartMess();

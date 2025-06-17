@@ -20,6 +20,10 @@
 #define RZG2L_TZC_DDR_BASE          (0x11070000)
 #define RZG2L_DDR_PHY_BASE          (0x11400000)
 #define RZG2L_DDR_MEMC_BASE         (0x11410000)
+#define RZG2L_DMAC_S_AXI_BASE       (0x11800000)
+#define RZG2L_DMAC_S_APB_BASE       (0x11810000)
+#define RZG2L_DMAC_NS_AXI_BASE      (0x11820000)
+#define RZG2L_DMAC_NS_APB_BASE      (0x11830000)
 #define RZG2L_GIC_BASE              (0x11900000)
 #define RZG2L_SD0_BASE              (0x11C00000)
 #define RZG2L_WDT_BASE              (0x12800800)
@@ -50,5 +54,14 @@
 /* Base address where parameters to BL31 are stored */
 #define PARAMS_BASE					(RZG2L_SRAM_BASE + 0x0001F000)
 #define PARAMS_SIZE					(0x1000)
+
+/* Address offset register for accessing the 34-bit address space */
+#define SYS_AOF0                	(0x0C00)      /* SD ch0/ch1 */
+#define SYS_AOF1                	(0x0C04)      /* Ether ch0/ch1 */
+#define SYS_AOF2                	(0x0C08)      /* USB2 ch0/ch1 Host */
+#define SYS_AOF3                	(0x0C0C)      /* USB2 ch0 Function */
+#define SYS_AOF4                	(0x0C10)      /* LCDC and DSI */
+#define SYS_AOF5                	(0x0C14)      /* H264 */
+#define SYS_AOF6                	(0x0C18)      /* Secure/Non-Secure DMAC */
 
 #endif /* __RZG2L_DEF_H__ */

@@ -23,6 +23,16 @@
 #define	INFO(...)
 #define ARRAY_SIZE(X) (sizeof(X)/(sizeof(X[0])))
 
+#define SRC_MEM_ADDR 		(0x50000000)
+#define DDR_ACCESS_START_ADDR SRC_MEM_ADDR
+
+#define DLY_CODE_MIN 		(-31)	// -11.78%
+#define DLY_CODE_MAX 		32		// 29.80%
+#define DLY_CODE_STEP 		(-1)
+#define DLY_LEN				((DLY_CODE_MAX - DLY_CODE_MIN + 1) / - (DLY_CODE_STEP))
+#define DQ_NUM 				16
+#define RANK_NUM 			2
+
 void panic(void)
 {
 	while(1);
@@ -39,6 +49,30 @@ uint32_t swizzle_phy_tbl[SIZZLE_PHY_NUM][2];
 char ddr_an_version[8];
 uint32_t mc_init_tbl[MC_INIT_NUM][2];
 
+typedef struct {
+	uint32_t	scl_lanes;
+	uint8_t		byte_lanes;
+	uint8_t		cs_bit;
+	uint8_t		ranks;
+	uint16_t	dram_clk_period;
+	uint8_t		dram;
+	uint64_t	addr[2];
+	uint8_t		vref_code_write_min;
+	uint8_t		vref_code_write_max;
+	uint8_t		vref_code_write_step;
+	uint8_t		vref_code_read_min;
+	uint8_t		vref_code_read_max;
+	uint8_t		vref_code_read_step;
+	int8_t		dly_code_min;
+	int8_t		dly_code_max;
+	int8_t		dly_code_step;
+	int8_t		dll_mas_dly;
+	uint32_t	step_dly;
+	int8_t		op_dq_trim[2][9];
+	int8_t		ip_dq_trim[2][8];
+} opne_eye_setting_t;
+static opne_eye_setting_t setting;
+
 // prototypes
 static void disable_phy_clk(void);
 static void program_mc1(uint8_t *lp_auto_entry_en);
@@ -52,6 +86,12 @@ static void opt_delay(uint32_t sl_lanes, uint32_t byte_lanes);
 static void exec_trainingSL(uint32_t sl_lanes);
 static void program_phy2(void);
 static void program_mc2(void);
+static void dram_write(uint64_t *addr, uint8_t rank_num,
+						uint64_t *wr_data, uint32_t bytes, dmac_setting_t *dmac);
+static void dram_read(uint64_t *addr, uint8_t rank_num,
+						uint32_t *rd_buf, uint32_t *exp_data, uint32_t bytes, dmac_setting_t *dmac,
+						uint16_t compareResult[][DLY_LEN], uint16_t dly);
+static void drawResult(const uint8_t rank_num, const uint16_t compareResult[][DLY_LEN]);
 
 // main
 void ddr_setup(opt_delay_flg_t runOptDelay)
@@ -1031,4 +1071,358 @@ static void program_mc2(void)
 
 	// Step2
 	rmw_mc_reg(DDRMC_R027, 0xFFFFFF80, tphy_rdlat & 0x7F);
+}
+
+void ddr_eye_open_tool(open_eye_memory_t *mem, dmac_setting_t *dmac)
+{
+	uint32_t	reg;
+	uint32_t	rank;
+	uint32_t	lane;
+	uint32_t	bit_sel;
+	uint8_t		vref_code_write;
+	uint8_t		vref_value_read;
+	uint8_t		vref_code_read;
+	int8_t		current_vref;
+	int			dly_code;
+	int8_t		dly;
+	uint16_t compareResult[RANK_NUM][DLY_LEN] = {0};
+
+	rmw_phy_reg(DDRPHY_R27, 0xFBFFFFFF, 0x04000000);
+	rmw_phy_reg(DDRPHY_R55, 0xFEFFFFFF, 0x00000000);
+	while(1)
+	{
+		reg = read_phy_reg(DDRPHY_R18);
+		if((reg & 0x10000000) == 0x00000000){
+			break;
+		}
+	}
+
+	// 3) Get configurations.
+	reg = read_mc_reg(DDRMC_R019);
+	reg = (reg >> 0) & 0x01;
+	if(reg == 0){
+		setting.scl_lanes = 3;
+		setting.byte_lanes = 2;
+	}else{
+		setting.scl_lanes = 1;
+		setting.byte_lanes = 1;
+	}
+
+	setting.cs_bit = 34 - 1 - reg;
+	reg = read_mc_reg(DENALI_CTL_122);
+	setting.cs_bit -= ((reg >> 24) & 0x07);
+	reg = read_mc_reg(DENALI_CTL_123);
+	setting.cs_bit -= ((reg >> 8) & 0x0F);
+	reg = read_mc_reg(DENALI_CTL_122);
+	setting.cs_bit -= ((reg >> 8) & 0x03);
+
+	reg = read_mc_reg(DDRMC_R039);
+	setting.dram_clk_period = reg & 0xFFFF;
+	setting.dram = (reg >> 16) & 0x0F;
+
+	reg = read_mc_reg(DENALI_CTL_132);
+	if(((reg >> 16) & 0x03) == 0x03){
+		setting.ranks = 2;
+	}else{
+		setting.ranks = 1;
+	}
+
+	for (rank = 0; rank < setting.ranks; rank++){
+		setting.addr[rank] = RZG2L_DDR1_BASE + 0x1000 + (rank << setting.cs_bit);
+	}
+
+	// 4) Set range.
+	setting.vref_code_write_min = 0;			// 45.00%
+	if(setting.dram == 2){
+		setting.vref_code_write_max = 73;		// 92.50%
+	}else{
+		setting.vref_code_write_max = setting.vref_code_write_min;
+	}
+	setting.vref_code_write_step = 1;
+	setting.vref_code_read_min = 2;				// 10.00%
+	setting.vref_code_read_max = 126;			// 90.96%
+	setting.vref_code_read_step = 1;
+	setting.dly_code_min = -31;					// -11.78%
+	setting.dly_code_max = 32;					// 29.80%
+	setting.dly_code_step = -1;
+
+	// 5) Get the DLL calibration result.
+	reg = read_phy_reg(DDRPHY_R28);
+	setting.dll_mas_dly = (reg >> 24) & 0xFF;
+	setting.step_dly = setting.dram_clk_period / setting.dll_mas_dly;	// 1 step delay [ps]
+
+	// 6) Get default values
+	lane = 0;
+	reg = lane * 7;
+	write_phy_reg(DDRPHY_R29, reg);
+	reg = read_phy_reg(DDRPHY_R66);
+	vref_value_read = (reg >> 4) & 0x7F;
+	if(vref_value_read == 127){
+		vref_code_read = 63;
+	}else{
+		vref_code_read = vref_value_read;
+	}
+
+	if(setting.dram == 2){
+		reg = read_mc_reg(DDRMC_R044);
+		vref_code_write = reg & 0xFF;
+	}else{
+		vref_code_write = 0;
+	}
+
+	for(lane = 0; lane < setting.byte_lanes; lane++)
+	{
+		for(bit_sel = 0; bit_sel < 9; bit_sel++)
+		{
+			reg = (bit_sel << 8) | (lane * 7);
+			write_phy_reg(DDRPHY_R29, reg);
+
+			reg = read_phy_reg(DDRPHY_R56);
+			setting.op_dq_trim[lane][bit_sel] = reg & 0x3F;
+			if ((reg & 0x40) == 0){
+				setting.op_dq_trim[lane][bit_sel] *= -1;
+			}
+
+			if(bit_sel < 8){
+				reg = read_phy_reg(DDRPHY_R54);
+				setting.ip_dq_trim[lane][bit_sel] = reg & 0x3F;
+				if ((reg & 0x40) == 0){
+					setting.ip_dq_trim[lane][bit_sel] *= -1;
+				}
+			}
+		}
+	}
+
+	// 7) Output default values
+
+	// 8) Measure the write eye
+	if(setting.dram == 2){
+		setup_vref_training_registers(vref_code_write, setting.scl_lanes, 1);
+	}
+
+	PutStr("",1);
+	PutStr("[Write]",0);
+	PutStr("",1);
+	PutStr("1                                                            100",1);
+
+	current_vref = vref_code_write;	//fix vref to write leveling value
+
+	for(dly_code = setting.dly_code_max; dly_code >= setting.dly_code_min; dly_code += setting.dly_code_step)
+	{
+		// Write the inversion data
+		if(setting.dram == 2){
+			setup_vref_training_registers(vref_code_write, setting.scl_lanes, 0);
+		}
+		for(lane = 0; lane < setting.byte_lanes; lane++){
+			for(bit_sel = 0; bit_sel < 9; bit_sel++){
+				reg = (bit_sel << 8) | (lane * 7);
+				write_phy_reg(DDRPHY_R29, reg);
+				write_phy_reg(DDRPHY_R56, 0x00000000);
+			}
+		}
+		dram_write(&setting.addr[0], setting.ranks, (uint64_t *)mem->p_wr_pattern_inv, mem->pattern_bytes, dmac);
+
+		// Write and Read
+		if(setting.dram == 2){
+			setup_vref_training_registers(current_vref, setting.scl_lanes, 0);
+		}
+		for(lane = 0; lane < setting.byte_lanes; lane++){
+			for(bit_sel = 0; bit_sel < 9; bit_sel++){
+				reg = (bit_sel << 8) | (lane * 7);
+				write_phy_reg(DDRPHY_R29, reg);
+
+				dly = setting.op_dq_trim[lane][bit_sel] + dly_code;
+				if(dly < -63){
+					dly = -63;
+				}else if(dly > 63){
+					dly = 63;
+				}
+
+				if(dly < 0){
+					reg = dly * -1;
+				}else{
+					reg = dly + 0x40;
+				}
+				write_phy_reg(DDRPHY_R56, 0x00000180 | reg);
+			}
+		}
+		dram_write(&setting.addr[0], setting.ranks, (uint64_t *)mem->p_wr_pattern, mem->pattern_bytes, dmac);
+		dram_read(&setting.addr[0], setting.ranks, mem->p_rd_buf, (uint32_t *)mem->p_wr_pattern, mem->pattern_bytes, dmac,\
+			compareResult, (DLY_CODE_MAX - dly_code));
+	}
+	PutStr("",1);
+	PutStr("",1);
+
+	drawResult(setting.ranks, compareResult);
+
+	// 9) Reset vref_code_write and op_dq_trim
+	if(setting.dram == 2){
+		setup_vref_training_registers(vref_code_write, setting.scl_lanes, 0);
+	}
+
+	for(lane = 0; lane < setting.byte_lanes; lane++){
+		for(bit_sel = 0; bit_sel < 9; bit_sel++){
+			reg = (bit_sel << 8) | (lane * 7);
+			write_phy_reg(DDRPHY_R29, reg);
+			write_phy_reg(DDRPHY_R56, 0x00000000);
+		}
+	}
+
+	// 10) Prepare to measure the read eye
+	dram_write(&setting.addr[0], setting.ranks, (uint64_t *)mem->p_wr_pattern, mem->pattern_bytes, dmac);
+
+	// 11) Measure the read eye
+	PutStr("",1);
+	PutStr("[Read]",0);
+	PutStr("",1);
+	PutStr("1                                                            100",1);
+
+	current_vref = vref_code_read;
+
+	for(dly_code = setting.dly_code_max; dly_code >= setting.dly_code_min; dly_code += setting.dly_code_step){
+		//Read
+		for(lane = 0; lane < setting.byte_lanes; lane++){
+			reg = lane * 7;
+			write_phy_reg(DDRPHY_R29, reg);
+			reg = ((current_vref << 4) | 0x00000001);
+			write_phy_reg(DDRPHY_R66, reg);
+
+			for(bit_sel = 0; bit_sel < 8; bit_sel++){
+				reg = (bit_sel << 8) | (lane * 7);
+				write_phy_reg(DDRPHY_R29, reg);
+
+				dly = setting.ip_dq_trim[lane][bit_sel] + dly_code;
+				if(dly < -63){
+					dly = -63;
+				}else if(dly > 63){
+					dly = 63;
+				}
+
+				if(dly < 0){
+					reg = dly * -1;
+				}else{
+					reg = dly + 0x40;
+				}
+				write_phy_reg(DDRPHY_R54, 0x00000080 | reg);
+			}
+		}
+		dram_read(&setting.addr[0], setting.ranks, mem->p_rd_buf, (uint32_t *)mem->p_wr_pattern, mem->pattern_bytes, dmac,\
+			compareResult, (DLY_CODE_MAX - dly_code));
+	}
+
+	PutStr("",1);
+	PutStr("",1);
+
+	drawResult(setting.ranks, compareResult);
+
+	// 12) Reset vref_code_read and ip_dq_trim
+	for(lane = 0; lane < setting.byte_lanes; lane++){
+		reg = lane * 7;
+		write_phy_reg(DDRPHY_R29, reg);
+		reg = ((vref_value_read << 4) | 0x00000000);
+		write_phy_reg(DDRPHY_R66, reg);
+
+		for(bit_sel = 0; bit_sel < 8; bit_sel++){
+			reg = (bit_sel << 8) | (lane * 7);
+			write_phy_reg(DDRPHY_R29, reg);
+			write_phy_reg(DDRPHY_R54, 0x00000000);
+		}
+	}
+	PutStr("FINISH!",1);
+}
+
+static void dram_write(uint64_t *addr, uint8_t rank_num,
+						uint64_t *wr_data, uint32_t bytes, dmac_setting_t *dmac)
+{
+	dmac_errcode_t dmac_err;
+	uint32_t rank;
+
+	for (rank = 0; rank < rank_num; rank++){
+		dmac->src_addr = (uint64_t)wr_data;
+		dmac->dst_addr = addr[rank];
+		dmac->transfer_byte = bytes;
+		dmac->non_secure_flag = 0;
+		dmac->rsel = 0;
+		dmac_err = dmac_transfer_single(dmac);
+
+		if(dmac_err != DMAC_ERRCODE_SUCCESS){
+			PutStr("",1);
+			PutStr("!!! DMAC Error !!!",1);
+			while(1);
+		}
+	}
+	return;
+}
+
+static void dram_read(uint64_t *addr, uint8_t rank_num,
+						uint32_t *rd_buf, uint32_t *exp_data, uint32_t bytes, dmac_setting_t *dmac,
+						uint16_t compareResult[][DLY_LEN], uint16_t dly)
+{
+	dmac_errcode_t dmac_err;
+	uint32_t tmp;
+	uint8_t rank;
+	uint8_t dq_bit;
+	uint16_t i, j;
+
+	for(i = 0; i < (bytes / sizeof(uint32_t)); i++){
+		rd_buf[i] = 0;
+	}
+
+	PutStr("#",0);
+
+	for(rank = 0; rank < rank_num; rank++){
+		dmac->src_addr = addr[rank];
+		dmac->dst_addr = (uint64_t)rd_buf;
+		dmac->transfer_byte = bytes;
+		dmac->non_secure_flag = 0;
+		dmac->rsel = 0;
+		dmac_err = dmac_transfer_single(dmac);
+		if(dmac_err != DMAC_ERRCODE_SUCCESS){
+			PutStr("",1);
+			PutStr("!!! DMAC Error !!!",1);
+			while(1);
+		}
+
+		// Compare
+		for(i = 0; i < (bytes / sizeof(uint32_t)); i++){
+			tmp = rd_buf[i] ^ exp_data[i];
+
+			for(j = 0; j < 32; j++){
+				dq_bit = j % 16;
+				if (((tmp >> j) & 0x1) != 0){
+					compareResult[rank][dly] |= (1 << dq_bit);
+				}
+			}
+		}
+	}
+}
+
+static void drawResult(const uint8_t rank_num, const uint16_t compareResult[][DLY_LEN]){
+	int rank, dq_bit, dly;
+	const char *rank_str[] = { "RANK[0]", "RANK[1]" };
+	const char *dq_str[] = {"DQ[00]:\t", "DQ[01]:\t", "DQ[02]:\t", "DQ[03]:\t", \
+							"DQ[04]:\t", "DQ[05]:\t", "DQ[06]:\t", "DQ[07]:\t", \
+							"DQ[08]:\t", "DQ[09]:\t", "DQ[10]:\t", "DQ[11]:\t", \
+							"DQ[12]:\t", "DQ[13]:\t", "DQ[14]:\t", "DQ[15]:\t" };
+
+	for (rank = 0; rank < rank_num; rank++){
+		PutStr(rank_str[rank],1);
+		PutStr("DQ# vs Delay (-31 to 32 [tap])",1);
+
+		for (dq_bit = 0; dq_bit < DQ_NUM; dq_bit++){
+			PutStr(dq_str[dq_bit],0);
+
+			for (dly = 0; dly < DLY_LEN; dly++){
+				if ( (dly == (DLY_LEN - DLY_CODE_MAX)) | (dly == (DLY_LEN - DLY_CODE_MAX - 1)) ) {	//center dly
+					PutStr("|",0);
+				}else if(((compareResult[rank][dly] >> dq_bit) & 1) == 0){
+					PutStr(".",0);
+				}else{
+					PutStr("X",0);
+				}
+			}
+			PutStr("",1);
+		}
+		PutStr("",1);
+	}
 }

@@ -51,6 +51,7 @@ const com_menu MonCom[COMMAND_UNIT] = {
 	"DDR_S"			, dgDdrSimple		,  0	,
 	"DDR_RB"		, dgDdrRandb		,  0	,
 	"DDR_FB"		, dgDdrFixedb		,  0	,
+	"DQ"			, dgDdrEyeOpenTool	, 0	,
 #endif /* INTERNAL_MEMORY_ONLY == 0 */
 	"D"			, dgDump			,  0	,
 	"DM"			, dgDumpMode			,  0	,

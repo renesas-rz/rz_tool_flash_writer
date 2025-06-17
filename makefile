@@ -289,7 +289,7 @@ SRC_FILE :=				\
 	common.c			\
 	dgtable.c			\
 	dgmodul1.c			\
-	memory_cmd.c			\
+	memory_cmd.c		\
 	Message.c			\
 	ramckmdl.c			\
 	cpudrv.c			\
@@ -297,7 +297,8 @@ SRC_FILE :=				\
 	sys/sysc.c			\
 	sys/cpg.c			\
 	sys/pfc.c			\
-	sys/tzc_400.c
+	sys/tzc_400.c		\
+	dmac.c
 
 ifeq ("$(INTERNAL_MEMORY_ONLY)", "DISABLE")
 SRC_FILE +=				\
