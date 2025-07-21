@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-// RZ/G3S, v2.0.4, D4.R1W16X8D16S16L.110DDE-0
+// RZ/G3S, v2.0.5, D4.R1W16X8D16S16L.110DDE-0
 
 #include <stdint.h>
 
@@ -780,7 +780,7 @@ const uint32_t param_phyinit_c[][2] = {
 	{0x00005043, 0x00000063},
 };
 
-const uint16_t param_phyinit_f_1d_0[] = {
+const uint16_t param_phyinit_1d_dat1[] = {
 	0x0080, 0x0000, 0x0000, 0x0640, 0x0002, 0x0000, 0x0236, 0x1000,
 	0x0101, 0x0000, 0x0100, 0x031f, D1D00C, 0x0100, 0x0000, 0x0000,
 	0x0000, 0x0000, 0x0001, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
@@ -892,7 +892,7 @@ const uint16_t param_phyinit_f_1d_0[] = {
 	0x0200, 0x1100, 0x0700, 0x0800, 0x0000, 0x0000,
 };
 
-const uint16_t param_phyinit_f_2d_0[] = {
+const uint16_t param_phyinit_2d_dat1[] = {
 	0x0080, 0x0000, 0x0000, 0x0640, 0x0002, 0x0000, 0x0236, 0x1000,
 	0x0101, 0x0000, 0x0100, 0x0061, D2D00C, 0x0100, 0x2080, 0x0000,
 	0x0000, 0x0000, 0x0001, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
@@ -1179,7 +1179,7 @@ const uint32_t param_phyinit_i[][2] = {
 	{0x0006e000, 0x00000001},
 };
 
-const uint16_t phyinit_1d[] = {
+const uint16_t param_phyinit_1d_dat0[] = {
 	0x0098, 0x0000, 0x0050, 0x0000, 0x0050, 0x0000, 0x0050, 0x0000,
 	0x0050, 0x0000, 0x0050, 0x0000, 0x0050, 0x0000, 0x0050, 0x0000,
 	0x0050, 0x0000, 0x0050, 0x0000, 0x0050, 0x0000, 0x0050, 0x0000,
@@ -2891,7 +2891,7 @@ const uint16_t phyinit_1d[] = {
 	0x0afb, 0x80e5, 0x70cd, 0xc4c6,
 };
 
-const uint16_t phyinit_2d[] = {
+const uint16_t param_phyinit_2d_dat0[] = {
 	0x01ac, 0x0000, 0x0050, 0x0000, 0x0050, 0x0000, 0x0050, 0x0000,
 	0x0050, 0x0000, 0x0050, 0x0000, 0x0050, 0x0000, 0x0050, 0x0000,
 	0x0050, 0x0000, 0x0050, 0x0000, 0x0050, 0x0000, 0x0050, 0x0000,
@@ -4702,10 +4702,10 @@ const uint32_t param_phyinit_swizzle[][2] = {
 
 const uint32_t param_setup_mc_size = ARRAY_SIZE(param_setup_mc);
 const uint32_t param_phyinit_c_size = ARRAY_SIZE(param_phyinit_c);
-const uint32_t param_phyinit_f_1d_0_size = ARRAY_SIZE(param_phyinit_f_1d_0);
-const uint32_t param_phyinit_f_2d_0_size = ARRAY_SIZE(param_phyinit_f_2d_0);
+const uint32_t param_phyinit_1d_dat1_size = ARRAY_SIZE(param_phyinit_1d_dat1);
+const uint32_t param_phyinit_2d_dat1_size = ARRAY_SIZE(param_phyinit_2d_dat1);
 const uint32_t param_phyinit_i_size = ARRAY_SIZE(param_phyinit_i);
-const uint32_t phyinit_1d_size = ARRAY_SIZE(phyinit_1d);
-const uint32_t phyinit_2d_size = ARRAY_SIZE(phyinit_2d);
+const uint32_t param_phyinit_1d_dat0_size = ARRAY_SIZE(param_phyinit_1d_dat0);
+const uint32_t param_phyinit_2d_dat0_size = ARRAY_SIZE(param_phyinit_2d_dat0);
 const uint32_t param_phyinit_swizzle_size = ARRAY_SIZE(param_phyinit_swizzle);
 

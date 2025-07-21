@@ -12,6 +12,7 @@
 #include "ramckmdl.h"
 #include "devdrv.h"
 #include "ddrcheck.h"
+#include "ddr.h"
 
 uintptr_t	gErrDdrAdd;
 uint32_t	gErrDdrData,gTrueDdrData;
@@ -359,8 +360,150 @@ static int32_t TPRAMCK( uint8_t *startAddr, uint8_t *endAddr )
 	return NORMAL_END;
 }
 
+static void fill_data_char_arr1D(char *dest, char *src, uint8_t size, uint32_t *offset){
+	for (int i = 0; i < size; i++) {
+		dest[i] = (char)src[*offset];
+		*offset += 1;
+	}
+}
+
+static void fill_data_arr2D(uint32_t dest[][2], uint8_t *src, uint32_t size, uint32_t *offset) {
+	for (int i = 0; i < size; i++) {
+		for (int j = 0; j < 2; j++) {
+			dest[i][j] = READ_LE32(&src[*offset]);
+			*offset += 4;
+		}
+	}
+}
+
+static void fill_data_arr1D(uint16_t *dest, uint8_t *src, uint32_t size, uint32_t *offset){
+	uint32_t align8bytes = ALIGN8(size*2);
+	for (int i = 0; i < size; i++) {
+		dest[i] = READ_LE16(&src[*offset]);
+		*offset += 2;
+		align8bytes -= 2;
+	}
+	while (align8bytes > 0) {
+		*offset += 2;
+		align8bytes -= 2;
+	}
+}
+
+static uint8_t InputFileSize(uint32_t *fileSize)
+{
+	uint32_t loop;
+	uint32_t wrData;
+	int8_t str[16];
+	int8_t buf[16];
+	int8_t chCnt = 0;
+	int8_t chPtr;
+
+	loop = 1;
+	while(loop)
+	{
+		PutStr("Please Input File size(byte) : H'",0);
+		GetStr(str,&chCnt);
+		chPtr = 0;
+		if (!GetStrBlk(str,buf,&chPtr,0))
+		{
+			if (chPtr == 1)
+			{	/* Case Return */
+				return(0);
+			}
+			else
+			{
+				if (HexAscii2Data((uint8_t*)buf,&wrData))
+				{
+					PutStr("Syntax Error",1);
+				}
+				else
+				{
+					*fileSize = wrData;
+					loop = 0;
+				}
+			}
+		}
+	}
+
+	return(1);
+}
+
+void dgDdrLoadParam(void)
+{
+	uint32_t offset = 0;
+	uint32_t received = 0U;
+	uint32_t fileSize, fileSizeCount;
+	uint8_t chkInput;
+	uint8_t byteData;
+	char buf[8];
+	static uint8_t ddr_param_buf[DDR_PARAM_MAX_SIZE];
+
+	chkInput = InputFileSize( &fileSize );
+	if (1 != chkInput || fileSize < DDR_PARAM_MIN_SIZE || fileSize > DDR_PARAM_MAX_SIZE)
+	{
+		PutStr("Invalid DDR parameters file size!", 1);
+		return;
+	}
+	PutStr("Please send ! (binary)",1);
+
+	/* Receiving data of DDR parameters */
+	while (received < fileSize)
+	{
+		GetChar(&byteData);
+		ddr_param_buf[received++] = byteData;
+	}
+
+	/* Extract the last from a binary file to determine the array size */
+	param_setup_mc_size = READ_LE32(&ddr_param_buf[fileSize - 32]);
+	param_phyinit_c_size = READ_LE32(&ddr_param_buf[fileSize - 28]);
+	param_phyinit_1d_dat1_size = READ_LE32(&ddr_param_buf[fileSize - 24]);
+	param_phyinit_2d_dat1_size = READ_LE32(&ddr_param_buf[fileSize - 20]);
+	param_phyinit_i_size = READ_LE32(&ddr_param_buf[fileSize - 16]);
+	param_phyinit_1d_dat0_size = READ_LE32(&ddr_param_buf[fileSize - 12]);
+	param_phyinit_2d_dat0_size = READ_LE32(&ddr_param_buf[fileSize - 8]);
+	param_phyinit_swizzle_size = READ_LE32(&ddr_param_buf[fileSize - 4]);
+
+	/* Check if the received size matches the value extracted from the binary */
+	fileSizeCount = (param_setup_mc_size * 2 + \
+					param_phyinit_c_size * 2 + \
+					param_phyinit_i_size * 2 + \
+					param_phyinit_swizzle_size * 2 + 10) * 4 + \
+					ALIGN8(param_phyinit_1d_dat1_size * 2) + \
+					ALIGN8(param_phyinit_2d_dat1_size * 2) + \
+					ALIGN8(param_phyinit_1d_dat0_size * 2) + \
+					ALIGN8(param_phyinit_2d_dat0_size * 2);
+	if (fileSizeCount != fileSize)
+	{
+		PutStr("BIN data structure is INVALID with size(byte) : H\'", 0);
+		Data2HexAscii(fileSizeCount, buf, SIZE_32BIT);
+		PutStr(buf, 1);
+		return;
+	}
+
+	/* Load ddr parameters into array local */
+	fill_data_char_arr1D(ddr_version_str, ddr_param_buf, 8, &offset);
+	fill_data_arr2D(param_setup_mc, ddr_param_buf, param_setup_mc_size, &offset);
+	fill_data_arr2D(param_phyinit_c, ddr_param_buf, param_phyinit_c_size, &offset);
+	fill_data_arr1D(param_phyinit_1d_dat1, ddr_param_buf, param_phyinit_1d_dat1_size, &offset);
+	fill_data_arr1D(param_phyinit_2d_dat1, ddr_param_buf, param_phyinit_2d_dat1_size, &offset);
+	fill_data_arr2D(param_phyinit_i, ddr_param_buf, param_phyinit_i_size, &offset);
+	fill_data_arr1D(param_phyinit_1d_dat0, ddr_param_buf, param_phyinit_1d_dat0_size, &offset);
+	fill_data_arr1D(param_phyinit_2d_dat0, ddr_param_buf, param_phyinit_2d_dat0_size, &offset);
+	fill_data_arr2D(param_phyinit_swizzle, ddr_param_buf, param_phyinit_swizzle_size, &offset);
+
+	PutStr("DDR parameters loaded", 1);
+	DDR_SETUP();
+	f_ddr_param_initialized = 1;
+}
+
 void dgDdrTest(void)
 {
+	if (f_ddr_param_initialized == 0)
+	{
+		PutStr("DDR not initialized, please send DDR parameters via \'DDRP\' command", 1);
+		return;
+	}
+
 	uint32_t readData, chCnt;
 	char	str[16];
 
@@ -408,6 +551,12 @@ void dgDdrTest(void)
 
 void dgRamTest(void)
 {
+	if (f_ddr_param_initialized == 0)
+	{
+		PutStr("DDR not initialized, please send DDR parameters via \'DDRP\' command", 1);
+		return;
+	}
+
 	uint64_t ramck1st,ramck2nd;
 	uint32_t setPara;
 
