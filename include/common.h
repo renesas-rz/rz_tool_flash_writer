@@ -12,11 +12,12 @@
 #ifdef AArch64
 //typedef uint64_t    uintptr_t;
 #define CPU_BYTE_SIZE			SIZE_64BIT
-#endif
-
-#ifdef AArch32
+#elif defined(AArch32)
 //typedef uint32_t    uintptr_t;
 #define CPU_BYTE_SIZE			SIZE_32BIT
+#else
+//typedef uint64_t    uintptr_t;
+#define CPU_BYTE_SIZE			SIZE_64BIT
 #endif
 
 
@@ -58,11 +59,16 @@ void SoftDelay(uint32_t roop);
 void WaitKeyIn_Y(void);
 char WaitKeyIn_YorN(void);
 char DecodeHexAscStr(uintptr_t *para, char *buf);
+char DecodeDecAscStr(uint32_t *data, char *buf);
 char DecodeHexAscStr2(uintptr_t *para1st, uintptr_t *para2nd, char *buf);
 char DecodeForm01(uintptr_t *para1st, uintptr_t *para2nd);
 char DecodeForm02(uintptr_t *para1st);
 char DecodeForm03(uintptr_t *para1st, uintptr_t *para2nd, uintptr_t *para3rd, uint32_t *setPara);
+char DecodeForm04(uintptr_t *para1st, uintptr_t *para2nd, uint32_t *para3rd, uint32_t *setPara);
+char DecodeForm05(uintptr_t *para1st, uintptr_t *para2nd, uintptr_t *para3rd, uint32_t *para4th, uint32_t *setPara);
 int32_t	GetStr_MemEd(char *str,char *chCnt);
 char HexAscii2Data_64(unsigned char *buf,uintptr_t *data);
+char DecAscii2Data(unsigned char *buf, uint32_t *data);
 char Data2HexAscii_64(uintptr_t data,char *buf,char size);
+char Data2DecAscii(uint32_t data, char *buf);
 #endif

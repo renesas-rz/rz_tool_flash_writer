@@ -32,6 +32,11 @@ const char *const AllHelpMess[ALL_HELP_MESS_LINE] = {
 				"        Load DDR parameters",
 				" DDRP           Store DDR parameters into internal SRAM",
 				"",
+				"        Stress checker command",
+				" DDR_S  [sadr] [eadr] {loop}        Simple write-then-read checking of DDR",
+				" DDR_RB [sadr] [eadr] {loop}        Random data write-then-read checking of DDR",
+				" DDR_FB [sadr] [eadr] [data] {loop} Fixed data write-then-read checking of DDR",
+				"",
 #endif /* INTERNAL_MEMORY_ONLY == 0 */
 				" SUP            Scif speed UP (Change to speed up baud rate setting)",
 				" SUD            Scif speed DOWN (Change to speed down baud rate setting)",
