@@ -1,11 +1,13 @@
 /*
- * Copyright (c) 2021, Renesas Electronics Corporation. All rights reserved.
- *
+ * Copyright (c) 2020-2022, Renesas Electronics Corporation. All rights reserved.
  * SPDX-License-Identifier: BSD-3-Clause
+ * This code was generated with RZ/G2L, G2UL, Five, A3UL DDR config generation tool v3.0.1
  */
 
 #include <stdint.h>
 #include <ddr_mc_regs.h>
+
+const char ddr_an_version[] = "v3.0.1";
 
 const uint32_t mc_init_tbl[MC_INIT_NUM][2] = {
 	{	DENALI_CTL_00,	0x00000600	},
@@ -78,11 +80,11 @@ const uint32_t mc_init_tbl[MC_INIT_NUM][2] = {
 	{	DENALI_CTL_67,	0x00000000	},
 	{	DENALI_CTL_68,	0x00000000	},
 	{	DENALI_CTL_69,	0x00000A60	},
-	{	DENALI_CTL_70,	0x00000206	},
-	{	DENALI_CTL_71,	0x00000210	},
+	{	DENALI_CTL_70,	0x00000006	},
+	{	DENALI_CTL_71,	0x00000010	},
 	{	DENALI_CTL_72,	0x00000A60	},
-	{	DENALI_CTL_73,	0x00000206	},
-	{	DENALI_CTL_74,	0x00000210	},
+	{	DENALI_CTL_73,	0x00000006	},
+	{	DENALI_CTL_74,	0x00000010	},
 	{	DENALI_CTL_75,	0x00000000	},
 	{	DENALI_CTL_76,	0x00000000	},
 	{	DENALI_CTL_77,	0x00000000	},
@@ -184,13 +186,13 @@ const uint32_t mc_init_tbl[MC_INIT_NUM][2] = {
 	{	DENALI_CTL_173,	0x00000000	},
 	{	DENALI_CTL_174,	0x00000000	},
 	{	DENALI_CTL_175,	0x06060600	},
-	{	DENALI_CTL_176,	0x02020001	},
+	{	DENALI_CTL_176,	0x03020001	},
 	{	DENALI_CTL_177,	0x01030101	},
 	{	DENALI_CTL_178,	0x03000302	},
 	{	DENALI_CTL_179,	0x00000000	},
-	{	DENALI_CTL_180,	0x00080800	},
-	{	DENALI_CTL_181,	0x00080800	},
-	{	DENALI_CTL_182,	0x00080800	},
+	{	DENALI_CTL_180,	0x00080801	},
+	{	DENALI_CTL_181,	0x00080801	},
+	{	DENALI_CTL_182,	0x00070601	},
 	{	DENALI_CTL_183,	0x00000000	},
 	{	DENALI_CTL_184,	0x000FFFFF	},
 	{	DENALI_CTL_185,	0xFFFFFFFF	},
@@ -422,8 +424,8 @@ const uint32_t mc_init_tbl[MC_INIT_NUM][2] = {
 	{	DENALI_CTL_411,	0x00000000	},
 	{	DENALI_CTL_412,	0x0000000F	},
 	{	DENALI_CTL_413,	0x017105DD	},
-	{	DENALI_CTL_414,	0x4F5101E8	},
-	{	DENALI_CTL_415,	0x00007822	},
+	{	DENALI_CTL_414,	0x4F6306E8	},
+	{	DENALI_CTL_415,	0x00002822	},
 	{	DENALI_CTL_416,	0x00003C22	},
 	{	DENALI_CTL_417,	0x00000000	},
 	{	DENALI_CTL_418,	0x00000000	},
