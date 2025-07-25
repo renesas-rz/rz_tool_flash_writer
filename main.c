@@ -158,7 +158,11 @@ void DecCom(void)
 				chCnt = 0;
 
 			}
-			else if (gKeyBuf[0] != LF_CODE)
+			else if (gKeyBuf[0] == LF_CODE)
+			{
+				chCnt = 0;
+			}
+			else
 			{
 				PutChar(gKeyBuf[0]);
 			}
