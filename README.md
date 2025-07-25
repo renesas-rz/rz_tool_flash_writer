@@ -3,7 +3,7 @@
 <Div Align="right">
 Renesas Electronics Corporation
 
-Nov-14-2023
+Jul-25-2025
 </Div>
 
 The RZ/G2L flash writer is sample software for Renesas RZ/G2L Group MPUs.
@@ -291,8 +291,8 @@ please send ! ('.' & CR stop load)
 SPI Data Clear(H'FF) Check :H'00000000-0000FFFF Erasing..Erase Completed
 SAVE SPI-FLASH.......
 ======= Qspi  Save Information  =================
- SpiFlashMemory Stat Address : H'00000000
- SpiFlashMemory End Address  : H'00009A80
+ SpiFlashMemory Start Address : H'00000000
+ SpiFlashMemory End Address   : H'00009A80
 ===========================================================
 
 >
@@ -702,3 +702,9 @@ Describe the revision history of RZ/G2L flash writer.
 ### 7.8. v1.07
 
 - eMMC : increase timeout waiting for CMD1_SEND_OP_COND response.
+
+### 7.9. v1.08
+
+- RZG2L, G2UL, Five, A3UL DDR Board Config Structure Generation Tool v3.0.1 compatible
+- RZV2L DDR Board Config Structure Generation Tool v1.13.1 compatible
+- Update README.
