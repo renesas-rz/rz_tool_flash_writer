@@ -786,10 +786,10 @@ static void XLoadSpiflash0_2(uint32_t mode)
 	if (PrgSpiEndAdd > gQspi_end_addess)
 	{
 			PutStr("Program over size Error", 1);
-			PutStr(" SpiFlashMemory Stat Address : H'", 0);
+			PutStr(" SpiFlashMemory Start Address : H'", 0);
 			Data2HexAscii(PrgSpiStartAdd, str, SIZE_32BIT);
 			PutStr(str ,1);
-			PutStr(" SpiFlashMemory End Address  : H'", 0);
+			PutStr(" SpiFlashMemory End Address   : H'", 0);
 			Data2HexAscii(PrgSpiEndAdd, str, SIZE_32BIT);
 			PutStr(str, 1);
 			return;
@@ -813,10 +813,10 @@ static void XLoadSpiflash0_2(uint32_t mode)
 	SaveDataWithBuffeQspiFlash(WriteDataStatAdd, PrgSpiStartAdd, saveSize);	//Manual Mode Single WriteBuffe
 	PutStr("",1);
 	PutStr("======= Qspi  Save Information  =================",1);
-	PutStr(" SpiFlashMemory Stat Address : H'",0);
+	PutStr(" SpiFlashMemory Start Address : H'",0);
 	Data2HexAscii(PrgSpiStartAdd, str, SIZE_32BIT);
 	PutStr(str,1);
-	PutStr(" SpiFlashMemory End Address  : H'",0);
+	PutStr(" SpiFlashMemory End Address   : H'",0);
 	Data2HexAscii(PrgSpiEndAdd, str, SIZE_32BIT);
 	PutStr(str,1);
 	PutStr("===========================================================",1);
@@ -1042,10 +1042,10 @@ static void XLoadSpiflash0_2(void)
 	dgLS_Load_And_Write_LowMemory(PrgSpiStartAdd, &PrgSpiEndAdd, UserPrgStatAdd);
 
 	PutStr("======= Qspi  Save Information  =================",1);
-	PutStr(" SpiFlashMemory Stat Address : H'",0);
+	PutStr(" SpiFlashMemory Start Address : H'",0);
 	Data2HexAscii(PrgSpiStartAdd ,str, 4);
 	PutStr(str,1);
-	PutStr(" SpiFlashMemory End Address  : H'",0);
+	PutStr(" SpiFlashMemory End Address   : H'",0);
 	Data2HexAscii(PrgSpiEndAdd, str, 4);
 	PutStr(str,1);
 	PutStr("===========================================================",1);
@@ -1161,10 +1161,10 @@ void dgG2LoadSpiflash0_3(void)
 		spiAddr += readCount;
 	}
 	PutStr("======= Qspi  Save Information  =================",1);
-	PutStr(" SpiFlashMemory Stat Address : H'",0);
+	PutStr(" SpiFlashMemory Start Address : H'",0);
 	Data2HexAscii(PrgSpiStartAdd ,str, 4);
 	PutStr(str,1);
-	PutStr(" SpiFlashMemory End Address  : H'",0);
+	PutStr(" SpiFlashMemory End Address   : H'",0);
 	Data2HexAscii(spiAddr - 1, str, 4);
 	PutStr(str,1);
 	PutStr("===========================================================",1);
