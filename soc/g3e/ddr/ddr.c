@@ -15,6 +15,8 @@
 #include "ddr.h"
 #include "ddr_private.h"
 
+#include "snprintf.h"
+
 static void phyinit_c(void);
 static void phyinit_d2h_1d(void);
 static void phyinit_d2h_2d(void);
@@ -33,32 +35,42 @@ extern const char ddr_version_str[];
 
 void ddr_setup(void)
 {
-	INFO("DDR: Setup (Rev. %s)\n", ddr_version_str);
+	INFO("DDR: Setup (Rev. %s)\n\r", ddr_version_str);
 
+	INFO("cpg_ddr_part1\n\r");
 	cpg_ddr_part1();
 
+	INFO("setup_mc\n\r");
 	setup_mc();
 
+	INFO("cpg_ddr_part2\n\r");
 	cpg_ddr_part2();
 
+	INFO("phyinit_c\n\r");
 	phyinit_c();
 
+	INFO("phyinit_d2h_1d\n\r");
 	phyinit_d2h_1d();
 
+	INFO("phyinit_d2h_2d\n\r");
 	phyinit_d2h_2d();
 
+	INFO("phyinit_mc\n\r");
 	phyinit_mc();
 
+	INFO("save_retcsr\n\r");
 	save_retcsr();
 
+	INFO("phyinit_i\n\r");
 	phyinit_i();
 
+	INFO("phyinit_j\n\r");
 	phyinit_j();
 
 #if PLAT_DDR_ECC
 	prog_all0();
 #endif
-
+	INFO("phyinit_d2h_1d\n\r");
 	update_mc();
 }
 

@@ -14,6 +14,10 @@
 #include "ddr_regs.h"
 #include "ddr_private.h"
 
+// #include "r_cmn_func.h"
+#include "snprintf.h"
+#include "common.h"
+
 void ddrtop_mc_apb_rmw(uint32_t addr, uint32_t data, uint32_t mask)
 {
 	uint32_t tmp_data;
@@ -133,6 +137,11 @@ uint32_t get_mail(uint8_t mode_32bits)
 	}
 
 	dwc_ddrphy_apb_wr(0x0d0031, 0x0001);
+
+/*** Debug Message */
+	// char buf[17];
+	// print("mail = 0x%04X\n\r", mail);
+/*******************/
 
 	return mail;
 }

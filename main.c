@@ -25,6 +25,10 @@
 #include "scifdrv.h"
 #include "xspiflash1drv.h"
 
+#include "snprintf.h"
+#define DDR_DEBUG 1
+#include "debug.h"
+
 extern const com_menu MonCom[COMMAND_UNIT];
 extern uint8_t	gCOMMAND_Area[COMMAND_BUFFER_SIZE];
 
@@ -57,6 +61,7 @@ void Main(void)
 	InitScif();
 
 #if (INTERNAL_MEMORY_ONLY == 0)
+	print("start DDR Setup\n\r");
 	DDR_SETUP();
 #endif
 	gUDump[0] =  gUMem[0] =  0;
