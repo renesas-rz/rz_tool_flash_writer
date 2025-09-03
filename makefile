@@ -187,7 +187,7 @@ CROSS_COMPILE ?= aarch64-elf-
 
 CFLAGS += -O0 -fno-stack-protector -fno-exceptions -fno-unwind-tables -fno-asynchronous-unwind-tables
 BOOT_DEF    = Writer
-FILE_NAME   = $(OUTPUT_DIR)/Flash_Writer_SCIF$(FILENAME_ADD)_$(DDR_TYPE)
+FILE_NAME   = $(OUTPUT_DIR)/DDR_Tool_SCIF$(FILENAME_ADD)_$(DDR_TYPE)
 
 ifeq ("$(DEVICE)", "RZG2L")
 	CFLAGS += -DRZG2L=1
