@@ -26,7 +26,6 @@
 #include "xspiflash1drv.h"
 
 #include "snprintf.h"
-#define DDR_DEBUG 1
 #include "debug.h"
 
 extern const com_menu MonCom[COMMAND_UNIT];

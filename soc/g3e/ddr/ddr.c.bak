@@ -15,8 +15,6 @@
 #include "ddr.h"
 #include "ddr_private.h"
 
-#include "debug.h"
-
 static void phyinit_c(void);
 static void phyinit_d2h_1d(void);
 static void phyinit_d2h_2d(void);

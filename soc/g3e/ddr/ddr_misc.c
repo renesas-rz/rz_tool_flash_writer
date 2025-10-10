@@ -14,7 +14,6 @@
 #include "ddr_regs.h"
 #include "ddr_private.h"
 
-// #include "r_cmn_func.h"
 #include "snprintf.h"
 #include "common.h"
 
@@ -89,6 +88,31 @@ void dwc_ddrphy_apb_poll(uint32_t addr, uint32_t data, uint32_t mask)
 	}
 }
 
+// void dwc_ddrphy_phyinit_userCustom_G_waitDone(uint8_t sel_train)
+// {
+// 	uint32_t train_done = 0;
+// 	uint32_t mail;
+
+// 	wait_pclk(10);
+// 	do {
+// 		wait_dficlk(500);
+// 		uint32_t data = dwc_ddrphy_apb_rd(0x0d0004);
+
+// 		if ((data & 0x1) == 0) {
+// 			mail = get_mail(0);
+// 			LOG("%08x\n\r", mail);
+// 			if (mail == 0xff || mail == 0x07) {
+// 				train_done = 1;
+// 			}
+// 		}
+// 	} while (train_done == 0);
+
+// 	if (mail == 0xff) {
+// 		ERROR("Training failed.\n");
+// 		panic();
+// 	}
+// }
+
 void dwc_ddrphy_phyinit_userCustom_G_waitDone(uint8_t sel_train)
 {
 	uint32_t train_done = 0;
@@ -100,15 +124,28 @@ void dwc_ddrphy_phyinit_userCustom_G_waitDone(uint8_t sel_train)
 		uint32_t data = dwc_ddrphy_apb_rd(0x0d0004);
 
 		if ((data & 0x1) == 0) {
+			/* Read Major message as 16-bit word */
 			mail = get_mail(0);
-			if (mail == 0xff || mail == 0x07) {
+			LOG("%08x\x0d\x0a", mail);
+
+			if (mail == 0x08) {
+				/* Streaming mode: next is 32-bit combined code = (ID<<16 | argc) */
+				uint32_t code = get_mail(1);
+				LOG("%08x\x0d\x0a", code);
+
+				uint16_t argc = (uint16_t)(code & 0xFFFFU);
+				for (uint16_t i = 0; i < argc; i++) {
+					uint32_t arg = get_mail(1); /* each argument is 32-bit */
+					LOG("%08x\x0d\x0a", arg);
+				}
+			} else if (mail == 0xff || mail == 0x07) {
 				train_done = 1;
 			}
 		}
 	} while (train_done == 0);
 
 	if (mail == 0xff) {
-		ERROR("Training failed.\n");
+		ERROR("Training failed.\x0d\x0a");
 		panic();
 	}
 }
@@ -137,11 +174,6 @@ uint32_t get_mail(uint8_t mode_32bits)
 	}
 
 	dwc_ddrphy_apb_wr(0x0d0031, 0x0001);
-
-/*** Debug Message */
-	// char buf[17];
-	// print("mail = 0x%04X\n\r", mail);
-/*******************/
 
 	return mail;
 }

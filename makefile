@@ -6,7 +6,9 @@
 
 CROSS_COMPILE=~/gcc/arm-gnu-toolchain-13.2.Rel1-x86_64-aarch64-none-elf/bin/aarch64-none-elf-
 BOARD=RZG3E_SIMPLE
-DDR_DEBUG = 1
+# BOARD=RZG3E_SMARC
+# DDR_PARAM_FILE=ddr_param_def_lpddr4.c
+DDR_PARAM_FILE=ddr_param_def_lpddr4_debug2d.c
 
 ifeq ("$(BOARD)", "")
 BOARD = RZG3E_SMARC
@@ -188,7 +190,7 @@ SRC_FILE +=	\
 	soc/g3e/ddr/ddr_misc.c			\
 	soc/g3e/ddr/ddr_setup_lpddr4.c		\
 	soc/g3e/ddr/ddr_retcsr_lpddr4.c		\
-	soc/$(DDR_PARAM_PATH)/ddr_param_def_lpddr4.c
+	soc/$(DDR_PARAM_PATH)/$(DDR_PARAM_FILE)
 endif
 
 ifeq ("$(SERIAL_FLASH)", "ENABLE")
