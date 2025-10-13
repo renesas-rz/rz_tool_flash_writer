@@ -42,7 +42,9 @@ const com_menu MonCom[COMMAND_UNIT] = {
 #if INTERNAL_MEMORY_ONLY == 0
 	"DDRP"			, dgDdrLoadParam		,  0	,
 	"DDRCK"			, dgDdrTest				,  0	,
-	"RAMCK"			, dgRamTest				,  0	,
+	"DDR_S"			, dgDdrSimple			,  0	,
+	"DDR_RB"		, dgDdrRandb			,  0	,
+	"DDR_FB"		, dgDdrFixedb			,  0	,
 #endif /* INTERNAL_MEMORY_ONLY = 0 */
 #if DDR_TEST == 1
 	"DDRCK"			, dgDdrTest				,  0	,
