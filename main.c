@@ -59,10 +59,6 @@ void Main(void)
 
 	InitScif();
 
-#if (INTERNAL_MEMORY_ONLY == 0)
-	print("start DDR Setup\n\r");
-	DDR_SETUP();
-#endif
 	gUDump[0] =  gUMem[0] =  0;
 	gUDump[1] =  gUMem[1] =  255;
 

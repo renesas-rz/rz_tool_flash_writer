@@ -31,7 +31,24 @@ static void restore_retcsr(void);
 
 #define MCAR_CTL				0x800
 
-extern const char ddr_version_str[];
+char ddr_version_str[DDR_VERSION_STR];
+uint32_t param_setup_mc[PARAM_SETUP_MC][2];
+uint32_t param_phyinit_c[PARAM_PHYINIT_C_MAX][2];
+uint16_t param_phyinit_1d_dat1[PARAM_PHYINIT_1D_DAT1];
+uint16_t param_phyinit_2d_dat1[PARAM_PHYINIT_2D_DAT1];
+uint32_t param_phyinit_i[PARAM_PHYINIT_I][2];
+uint16_t param_phyinit_1d_dat0[PARAM_PHYINIT_1D_DAT0];
+uint16_t param_phyinit_2d_dat0[PARAM_PHYINIT_2D_DAT0];
+uint32_t param_phyinit_swizzle[PARAM_PHYINIT_SWIZZLE][2];
+
+uint32_t param_setup_mc_size;
+uint32_t param_phyinit_c_size;
+uint32_t param_phyinit_1d_dat1_size;
+uint32_t param_phyinit_2d_dat1_size;
+uint32_t param_phyinit_i_size;
+uint32_t param_phyinit_1d_dat0_size;
+uint32_t param_phyinit_2d_dat0_size;
+uint32_t param_phyinit_swizzle_size;
 
 void ddr_setup(void)
 {

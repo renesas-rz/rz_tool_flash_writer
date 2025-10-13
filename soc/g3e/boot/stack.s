@@ -7,6 +7,6 @@
 	.section writer_stack, "aw", %nobits
 	.align 5
 stacks:
-	.space (4*1024), 0
+	.space (32*1024), 0
 
 	.end

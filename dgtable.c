@@ -40,6 +40,7 @@ const com_menu MonCom[COMMAND_UNIT] = {
 	"SUD"			, dgScifSpeedDown		,  0	,
 	"RESET"			, dgReset				,  0	,
 #if INTERNAL_MEMORY_ONLY == 0
+	"DDRP"			, dgDdrLoadParam		,  0	,
 	"DDRCK"			, dgDdrTest				,  0	,
 	"RAMCK"			, dgRamTest				,  0	,
 #endif /* INTERNAL_MEMORY_ONLY = 0 */

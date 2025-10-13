@@ -452,6 +452,14 @@ void dgClearSpiflash0(void)
 //////////////////////////////////////////
 static void XLoadSpiflash0_2(uint32_t mode)
 {
+#if INTERNAL_MEMORY_ONLY == 0
+	if (f_ddr_param_initialized == 0)
+	{
+		PutStr("DDR not initialized, please send DDR parameters via \'DDRP\' command", 1);
+		return;
+	}
+#endif /* INTERNAL_MEMORY_ONLY = 0 */
+
 	char		str[64];
 	uint32_t	PrgSpiStartAdd, PrgSpiEndAdd, PrgSpiSize, UserPrgStatAdd;
 	uint32_t	workAdd_Min, workAdd_Max;

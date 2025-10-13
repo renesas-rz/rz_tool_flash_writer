@@ -9,6 +9,9 @@
 #include "common.h"
 #include "devdrv.h"
 
+/* Status of DDR Parameters initialized or not */
+uint8_t f_ddr_param_initialized = 0;
+
 __attribute__((aligned(32))) uint8_t	gCOMMAND_Area[COMMAND_BUFFER_SIZE];
 extern char gKeyBuf[64];
 
@@ -33,7 +36,15 @@ int32_t	PutStr(const char *str, char rtn)
 {
 	while(*str)
 	{
-		PutChar(*str);
+		if (*str == '\n')
+		{
+			PutChar(CR_CODE);
+			PutChar(LF_CODE);
+		}
+		else
+		{
+			PutChar(*str);
+		}
 		str++;
 	}
 	if (rtn == 1)

@@ -4,5 +4,6 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+void dgDdrLoadParam(void);
 void dgDdrTest(void);
 void dgRamTest(void);
