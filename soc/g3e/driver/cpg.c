@@ -1724,17 +1724,13 @@ static void cpg_reset_setup(void)
 
 static void cpg_wdtrst_sel_setup(void)
 {
-	uint32_t val	= CPG_ERRORRST_SELx_ERRRSTSEL0
-					| CPG_ERRORRST_SELx_ERRRSTSEL1
-					| CPG_ERRORRST_SELx_ERRRSTSEL2
-					| CPG_ERRORRST_SELx_ERRRSTSEL3;
-
-	/* Add in the WEN bits for the selected bits */
-	val =  (val & 0xFFFF) | ((val & 0xFFFF) << 16);
-
-	mmio_write_32(CPG_ERRORRST_SEL2, val);
+	/* Clear the state flags for factors of error interrupts */
+	mmio_write_32(RZG3E_ELC_ERINTM33CLR(0), 0x10000000);
+	/* Generates a CA55 cold reset */
+	mmio_write_32(CPG_ERRORRST_SEL1, 0x000A000A);
+	/* Execute error system reset */
+	mmio_write_32(CPG_ERRORRST_SEL2, 0x00020002);
 }
-
 
 void cpg_ddr_part1(void)
 {
