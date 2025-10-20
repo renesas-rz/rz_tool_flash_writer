@@ -1,6 +1,6 @@
 BSD 3-Clause License
 
-Copyright (c) 2015-2024, Renesas Electronics Corporation
+Copyright (c) 2015-2025, Renesas Electronics Corporation
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
