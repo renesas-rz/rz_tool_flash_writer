@@ -11,27 +11,10 @@
 
 #include "ddr_regs.h"
 #include "ddr_private.h"
+#include "ddr.h"
 
 #define DAT0_BASE	(0x00060000)
 #define DAT1_BASE	(0x00064000)
-
-extern const uint32_t param_phyinit_swizzle[][2];
-extern const uint32_t param_phyinit_c[][2];
-extern const uint32_t param_phyinit_i[][2];
-extern const uint16_t phyinit_1d[];
-extern const uint16_t phyinit_2d[];
-extern const uint16_t param_phyinit_f_1d_0[];
-extern const uint16_t param_phyinit_f_2d_0[];
-extern const uint32_t param_setup_mc[][2];
-
-extern const uint32_t param_phyinit_swizzle_size;
-extern const uint32_t param_phyinit_c_size;
-extern const uint32_t param_phyinit_i_size;
-extern const uint32_t phyinit_1d_size;
-extern const uint32_t phyinit_2d_size;
-extern const uint32_t param_phyinit_f_1d_0_size;
-extern const uint32_t param_phyinit_f_2d_0_size;
-extern const uint32_t param_setup_mc_size;
 
 void setup_mc(void)
 {
@@ -78,14 +61,14 @@ void phyinit_load_1d_image(void)
 	dwc_ddrphy_apb_wr(0x00058060, 0x00000002);
 	dwc_ddrphy_apb_wr(0x0006E000, 0x00000000);
 
-	for (i = 0; i < phyinit_1d_size; i++)
-		dwc_ddrphy_apb_wr(DAT0_BASE + i, (uint32_t)phyinit_1d[i]);
+	for (i = 0; i < param_phyinit_1d_dat0_size; i++)
+		dwc_ddrphy_apb_wr(DAT0_BASE + i, (uint32_t)param_phyinit_1d_dat0[i]);
 
 	for (i = i; (DAT0_BASE + i) < DAT1_BASE; i++)
 		dwc_ddrphy_apb_wr(DAT0_BASE + i, 0);
 
-	for (i = 0; i < param_phyinit_f_1d_0_size; i++)
-		dwc_ddrphy_apb_wr(DAT1_BASE + i, (uint32_t)param_phyinit_f_1d_0[i]);
+	for (i = 0; i < param_phyinit_1d_dat1_size; i++)
+		dwc_ddrphy_apb_wr(DAT1_BASE + i, (uint32_t)param_phyinit_1d_dat1[i]);
 
 	dwc_ddrphy_apb_wr(0x0006E000, 0x00000001);
 }
@@ -106,14 +89,14 @@ void phyinit_load_2d_image(void)
 
 	dwc_ddrphy_apb_wr(0x0006E000, 0x00000000);
 
-	for (i = 0; i < phyinit_2d_size; i++)
-		dwc_ddrphy_apb_wr(DAT0_BASE + i, (uint32_t)phyinit_2d[i]);
+	for (i = 0; i < param_phyinit_2d_dat0_size; i++)
+		dwc_ddrphy_apb_wr(DAT0_BASE + i, (uint32_t)param_phyinit_2d_dat0[i]);
 
 	for (i = i; (DAT0_BASE + i) < DAT1_BASE; i++)
 		dwc_ddrphy_apb_wr(DAT0_BASE + i, 0);
 
-	for (i = 0; i < param_phyinit_f_2d_0_size; i++)
-		dwc_ddrphy_apb_wr(DAT1_BASE + i, (uint32_t)param_phyinit_f_2d_0[i]);
+	for (i = 0; i < param_phyinit_2d_dat1_size; i++)
+		dwc_ddrphy_apb_wr(DAT1_BASE + i, (uint32_t)param_phyinit_2d_dat1[i]);
 
 	dwc_ddrphy_apb_wr(0x0006E000, 0x00000001);
 }

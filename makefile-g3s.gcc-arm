@@ -87,7 +87,7 @@ CROSS_COMPILE ?= aarch64-elf-
 
 CFLAGS += -O0 -fno-stack-protector -fno-exceptions -fno-unwind-tables -fno-asynchronous-unwind-tables
 BOOT_DEF    = Writer
-FILE_NAME   = $(OUTPUT_DIR)/Eye_Opening_Tool$(FILENAME_ADD)_$(DDR_TYPE)
+FILE_NAME   = $(OUTPUT_DIR)/Flash_Writer_SCIF$(FILENAME_ADD)_$(DDR_TYPE)
 
 ifeq ("$(DEVICE)", "RZG3S")
 	CFLAGS += -DRZG3S=1
@@ -150,7 +150,6 @@ SRC_FILE :=	\
 	memory_cmd.c	\
 	Message.c		\
 	cpudrv.c		\
-	snprintf.c		\
 	ramckmdl.c
 
 SRC_FILE +=	\
@@ -165,10 +164,10 @@ SRC_FILE +=	\
 ifeq ("$(DDR_TYPE)", "LPDDR4")
 SRC_FILE += \
 	ddrcheck.c							\
+	snprintf.c							\
 	soc/g3s/driver/ddr_stub.c			\
 	soc/g3s/ddr/ddr.c					\
 	soc/g3s/ddr/ddr_misc.c				\
-	soc/g3s/ddr/ddr_param_def_lpddr4.c	\
 	soc/g3s/ddr/ddr_retcsr_lpddr4.c		\
 	soc/g3s/ddr/ddr_setup_lpddr4.c		\
 	soc/g3s/ddr/decode_streaming_message_lpddr4.c
@@ -177,10 +176,10 @@ endif
 ifeq ("$(DDR_TYPE)", "DDR4")
 SRC_FILE +=	\
 	ddrcheck.c							\
+	snprintf.c							\
 	soc/g3s/driver/ddr_stub.c			\
 	soc/g3s/ddr/ddr.c					\
 	soc/g3s/ddr/ddr_misc.c				\
-	soc/g3s/ddr/ddr_param_def_ddr4.c	\
 	soc/g3s/ddr/ddr_retcsr_ddr4.c		\
 	soc/g3s/ddr/ddr_setup_ddr4.c		\
 	soc/g3s/ddr/decode_streaming_message_ddr4.c

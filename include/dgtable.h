@@ -7,7 +7,7 @@
 /**********************
 * COMMAND_UNITE       *
 ***********************/
-#define		COMMAND_UNIT		30
+#define		COMMAND_UNIT	30
 #define		NORMAL_END		0
 #define		ERROR_END		1
 
@@ -15,7 +15,7 @@
 * MESSAGE LINE       *
 ***********************/
 #define		START_MESS_MON_LINE	2
-#define		ALL_HELP_MESS_LINE	30
+#define		ALL_HELP_MESS_LINE	40
 
 /**********************
 * TABLE PARAMETER     *

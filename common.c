@@ -9,6 +9,9 @@
 #include "common.h"
 #include "devdrv.h"
 
+/* Status of DDR Parameters initialized or not */
+uint8_t f_ddr_param_initialized = 0;
+
 __attribute__((aligned(32))) uint8_t	gCOMMAND_Area[COMMAND_BUFFER_SIZE];
 extern char gKeyBuf[64];
 
@@ -293,6 +296,32 @@ char Data2HexAscii(uint32_t data, char *buf, char size)
 	return(0);
 }
 
+char Data2DecAscii(uint32_t data, char *buf)
+{
+	char tmpBuf[16];
+	uint32_t i, count;
+
+	count = 0;
+	if (data == 0)
+	{
+		buf[0] = '0';
+		buf[1] = 0;
+		return (0);
+	}
+	while(data)
+	{
+		tmpBuf[count] = (data % 10) + '0';
+		data /= 10;
+		count++;
+	}
+	for (i = 0; i < count; i++)
+	{
+		buf[i] = tmpBuf[count - i - 1];
+	}
+	buf[i] = 0;
+	return 0;
+}
+
 char GetStrBlk(char *inStr, char *outStr, char *chPtr, char method)
 {
 	char serchEnd, frstSpace, endCh;
@@ -412,6 +441,27 @@ char DecodeHexAscStr(uintptr_t *para, char *buf)
 	else if (value == 0)
 	{
 		*para = tmpData;
+	}
+	return(0);	/* Normal End   */
+}
+
+/*********************************************************/
+/* Decimal Ascii str -> Decimal                          */
+/*********************************************************/
+char DecodeDecAscStr(uint32_t *data, char *buf)
+{
+	char value;
+	uint32_t tmpData;
+
+	value = DecAscii2Data((unsigned char*)buf, &tmpData);
+	if (value == 1)
+	{
+		/* Error */
+		return(1);
+	}
+	else if (value == 0)
+	{
+		*data = tmpData;
 	}
 	return(0);	/* Normal End   */
 }
@@ -580,6 +630,147 @@ char DecodeForm03(uintptr_t *para1st, uintptr_t *para2nd, uintptr_t *para3rd, ui
 	return(0);
 }
 
+/***********************************************************/
+/*        Decode Format04                                  */
+/* COM <start Add> <End Add> [count]                       */
+/*                                                         */
+/***********************************************************/
+char DecodeForm04(uintptr_t *para1st, uintptr_t *para2nd, uint32_t *para3rd, uint32_t *setPara)
+{
+	char tmp[64], chPtr,endCh, getCnt, value;
+
+	*setPara = 0;
+	chPtr= getCnt = 0;
+	do
+	{
+		endCh = GetStrBlk(gKeyBuf, tmp, &chPtr, 0);
+		switch(getCnt)
+		{
+			/*********** Command  Block parameter  ****************/
+			case 0:
+				if (endCh == 0)
+				{
+					/* non set start Add = Error */
+					return(1);
+				}
+			break;
+			/*********** Ana 1st parameter <start Add> **********/
+			case 1:
+				if (DecodeHexAscStr(para1st, tmp) == 1)
+				{
+					return(1);	/* Syntax Error */
+				}
+				else
+				{
+					*setPara = 0x01;
+				}
+			break;
+			/*********** Ana 2nd parameter <End Add>   **********/
+			case 2:
+				if (DecodeHexAscStr(para2nd, tmp) == 1)
+				{
+					return(1);	/* Syntex Error */
+				}
+				else
+				{
+					*setPara = 0x02;
+				}
+			break;
+			/*********** Ana 3rd parameter <count>   **********/
+			case 3:
+				if (DecodeDecAscStr(para3rd, tmp) == 1)
+				{
+					return(1);	/* Syntex Error */
+				}
+				else
+				{
+					*setPara = 0x03;
+				}
+			break;
+			default:
+			break;
+		}
+		getCnt++;
+	} while(endCh);
+	return(0);
+}
+
+/***********************************************************/
+/*        Decode Format05                                  */
+/* COM <start Add> <End Add> <val> [count]                 */
+/*                                                         */
+/***********************************************************/
+char DecodeForm05(uintptr_t *para1st, uintptr_t *para2nd, uintptr_t *para3rd, uint32_t *para4th, uint32_t *setPara)
+{
+	char tmp[64], chPtr,endCh, getCnt, value;
+
+	*setPara = 0;
+	chPtr= getCnt = 0;
+	do
+	{
+		endCh = GetStrBlk(gKeyBuf, tmp, &chPtr, 0);
+		switch(getCnt)
+		{
+			/*********** Command  Block parameter  ****************/
+			case 0:
+				if (endCh == 0)
+				{
+					/* non set start Add = Error */
+					return(1);
+				}
+			break;
+			/*********** Ana 1st parameter <start Add> **********/
+			case 1:
+				if (DecodeHexAscStr(para1st, tmp) == 1)
+				{
+					return(1);	/* Syntax Error */
+				}
+				else
+				{
+					*setPara = 0x01;
+				}
+			break;
+			/*********** Ana 2nd parameter <End Add>   **********/
+			 case 2:
+				if (DecodeHexAscStr(para2nd, tmp) == 1)
+				{
+					return(1);	/* Syntex Error */
+				}
+				else
+				{
+					*setPara = 0x02;
+				}
+			break;
+			/*********** Ana 3rd parameter <val>   **********/
+			 case 3:
+				if (DecodeHexAscStr(para3rd, tmp) == 1)
+				{
+					return(1);	/* Syntex Error */
+				}
+				else
+				{
+					*setPara = 0x03;
+				}
+			break;
+			/*********** Ana 4th parameter <count>   **********/
+			 case 4:
+				if (DecodeDecAscStr(para4th, tmp) == 1)
+				{
+					return(1);	/* Syntex Error */
+				}
+				else
+				{
+					*setPara = 0x04;
+				}
+			break;
+			default:
+			break;
+		}
+		getCnt++;
+	} while(endCh);
+	return(0);
+}
+
 /************************************************/
 /*NAME		: GetStr_MemEd						*/
 /************************************************/
@@ -679,6 +870,30 @@ char HexAscii2Data_64(unsigned char *buf, uintptr_t *data)
 			return(1);
 		}
 	}
+	return(0);
+}
+
+char DecAscii2Data(unsigned char *buf, uint32_t *data)
+{
+	uint8_t  tmpData;
+	uint32_t val = 0;
+
+	while(*buf)
+	{
+		if (('0' <= *buf) && (*buf <= '9'))
+		{
+			tmpData = (uint8_t)(*buf - '0');
+			val *= 10;
+			val += tmpData;
+		}
+		else
+		{
+			*data = 0;
+			return(1);
+		}
+		buf++;
+	}
+	*data = val;
 	return(0);
 }
 

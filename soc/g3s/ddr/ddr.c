@@ -16,6 +16,25 @@
 #include "ddr_regs.h"
 #include "ddr_private.h"
 
+char ddr_version_str[DDR_VERSION_STR];
+uint32_t param_setup_mc[PARAM_SETUP_MC_MAX][2];
+uint32_t param_phyinit_c[PARAM_PHYINIT_C_MAX][2];
+uint16_t param_phyinit_1d_dat1[PARAM_PHYINIT_1D_DAT1_MAX];
+uint16_t param_phyinit_2d_dat1[PARAM_PHYINIT_2D_DAT1_MAX];
+uint32_t param_phyinit_i[PARAM_PHYINIT_I_MAX][2];
+uint16_t param_phyinit_1d_dat0[PARAM_PHYINIT_1D_DAT0_MAX];
+uint16_t param_phyinit_2d_dat0[PARAM_PHYINIT_2D_DAT0_MAX];
+uint32_t param_phyinit_swizzle[PARAM_PHYINIT_SWIZZLE_MAX][2];
+
+uint32_t param_setup_mc_size;
+uint32_t param_phyinit_c_size;
+uint32_t param_phyinit_1d_dat1_size;
+uint32_t param_phyinit_2d_dat1_size;
+uint32_t param_phyinit_i_size;
+uint32_t param_phyinit_1d_dat0_size;
+uint32_t param_phyinit_2d_dat0_size;
+uint32_t param_phyinit_swizzle_size;
+
 static void phyinit_c(void);
 static void phyinit_d2h_1d(void);
 static void phyinit_d2h_2d(void);
@@ -26,7 +45,7 @@ static void	restore_retcsr(void);
 
 void ddr_setup(void)
 {
-	INFO("DDR: Setup (Rev. %s)\n", DDR_VERSION);
+	INFO("DDR: Setup (Rev. %s)\n", ddr_version_str);
 	INFO("Eye opening tool Ver. 1.1.0\n\n");
 	cpg_active_ddr1();
 	wait_pclk(2);
@@ -63,7 +82,7 @@ void ddr_retention_entry(void)
 
 void ddr_retention_exit(void)
 {
-	INFO("DDR: Retention Exit (Rev. %s)\n", DDR_VERSION);
+	INFO("DDR: Retention Exit (Rev. %s)\n", ddr_version_str);
 #if defined(PLAT_SYSTEM_SUSPEND_vbat)
 	mmio_write_32(PWRDN_DDRPHY_CTRL, 0x00000311);
 	mmio_write_32(VBATT_BKPSR, 0x00000000);
