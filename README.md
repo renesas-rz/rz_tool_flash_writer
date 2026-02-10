@@ -3,7 +3,7 @@
 <Div Align="right">
 Renesas Electronics Corporation
 
-Jul-25-2025
+Mar-06-2026
 </Div>
 
 DDR Tools are essential utilities provided by Renesas to assist developers in configuring, tuning, and verifying the operation of DDR memory (DDR3L/DDR4) on the RZ/G2L MPU. 
@@ -28,19 +28,19 @@ And the RZ/G2L DDR Tools loads the DDR parameters from the Host PC via SCIF and 
 
 [Chapter 7](#7-revision-history) explains revision history.
 
-## 1.2. License
+### 1.1. License
 
 BSD-3-Clause (please see file [LICENSE.md](LICENSE.md) for the details)
 
-## 1.3. Notice
+### 1.2. Notice
 
 The RZ/G2L DDR Tools is distributed as a sample software from Renesas without any warranty or support.
 
-## 1.4. Contributing
+### 1.3. Contributing
 
 To contribute to this layer, you should email patches to renesas-rz@renesas.com. Please send .patch files as email attachments, not embedded in the email body.
 
-## 1.5. References
+### 1.4. References
 
 The following table shows the document related to this function.
 
@@ -61,12 +61,20 @@ The following table lists the hardware needed to use this function.
 
 #### Hardware environment
 
-| Name         | Note                                              |
-| ------------ | ------------------------------------------------- |
-| Target board | RZ/G2L SMARC PMIC Evaluation Kit(RZ/G2L PMIC EVK) |
-| Host PC      | Ubuntu Desktop 20.04(64bit) or later              |
+| Name         | Note                                               |
+| ------------ | -------------------------------------------------- |
+| Target board | RZ/G2L SMARC PMIC Evaluation Kit (RZ/G2L PMIC EVK) |
+| Host PC      | Ubuntu Desktop 22.04(64bit) or later               |
 
-## 2.2. Software Environment
+The following table shows Serial Flash and eMMC support for RZ/G2L PMIC EVK.
+
+#### Serial Flash / eMMC support status of RZ/G2L PMIC EVK
+
+| Read/Write the Serial Flash | Boot from the Serial Flash | Read/Write the eMMC | Boot from the eMMC |
+| --------------------------- | -------------------------- | ------------------- | ------------------ |
+| Not supported               | Not supported              | Supported           | Supported          |
+
+### 2.2. Software Environment
 
 The following table lists the software required to use this sample software.
 
@@ -74,7 +82,7 @@ The following table lists the software required to use this sample software.
 
 | Name                             | Note                                                    |
 | -------------------------------- | ------------------------------------------------------- |
-| ARM64 Cross-compile Toolchain    | ARM64 Cross-compile Toolchain Release GCC v10.2         |
+| ARM64 Cross-compile Toolchain    | ARM64 Cross-compile Toolchain Release GCC v10.3         |
 
 ## 3. Software
 
@@ -82,6 +90,14 @@ The following table lists the software required to use this sample software.
 
 This package has the following functions.
 
+- Write to the images to the Serial Flash.
+- Erase the Serial Flash.
+- Display the CID/CSD/EXT_CSD registers of an eMMC.
+- Modify the EXT_CSD registers of an eMMC.
+- Write binary images to the boot partition of an eMMC.
+- Write binary images to the user data area of an eMMC.
+- Erase the boot partition of an eMMC.
+- Erase the user data area of an eMMC.
 - Loading DDR parameters
 - Step-by-Step Training Message Log
 - DQ Margin Checker
@@ -98,25 +114,209 @@ The RZ/G2L DDR Tools support the following build options.
 | BOARD            | BOARD setting                                                 |
 | ---------------- | ------------------------------------------------------------- |
 | RZG2L_SMARC_PMIC | Generate binary that works on RZ/G2L PMIC EVK board           |
+
+#### 3.2.2. SERIAL_FLASH
+
+Select from the following table according to the Serial Flash writing function.
+
+If this option is not selected, the default value is ENABLE (In RZ/G2L DDR Tools, this option is disabled by a script).
+
+##### Association table for the SERIAL_FLASH value and valid Serial Flash writing function settings
+
+| SERIAL_FLASH | Serial Flash writing setting                          |
+| ------------ | ----------------------------------------------------- |
+| ENABLE       | Serial Flash writing function is available. (default) |
+| DISABLE      | Serial Flash writing function is not available.       |
+
+#### 3.2.3 eMMC
+
+Select from the following table according to the eMMC writing function.
+
+If this option is not selected, the default value is ENABLE.
+
+##### Association table for the eMMC value and valid eMMC writing function settings
+
+| EMMC    | eMMC writing setting                                        |
+|---------|-------------------------------------------------------------|
+| ENABLE  | eMMC writing function is available. (default)               |
+| DISABLE | eMMC writing function is not available.                     |
+
 ### 3.3. Command specification
 
 The following table shows the command list.
 
 #### Command list
 
-| Command                              | Description                                                            |
-| ------------------------------------ | ---------------------------------------------------------------------- |
-| DDRP                                 | Store DDR parameters into internal SRAM.                                |
-| DDR_S [sadr] [eadr] {loop}           | Simple write-then-read checking of DDR.                                 |
-| DDR_RB [sadr] [eadr] {loop}          | Random data write-then-read checking of DDR.                            |
-| DDR_FB [sadr] [eadr] [data] {loop}   | Fixed data write-then-read checking of DDR.                             |
-| DQ                                   | DQ to DQS timing margin check.                                          |
-| SUP                                  | Change the SCIF baud rate setting.                                     |
-| SUD                                  | Change the SCIF baud rate setting.                                     |
-| RESET                                | Perform RESET of the CPU.                                              |
-| H                                    | Display the command help.                                              |
+| Command                              | Description                                                                                        |
+| ------------------------------------ | -------------------------------------------------------------------------------------------------- |
+| EM_DCID                              | Display the CID registers of eMMC.                                                                 |
+| EM_DCSD                              | Display the CSD registers of eMMC.                                                                 |
+| EM_DECSD                             | Display the EXT_CSD registers of eMMC.                                                             |
+| EM_SECSD                             | Modify the EXT_CSD registers of eMMC.                                                              |
+| EM_W                                 | Write to the S-record format images to the user data area of eMMC, and the boot partition of eMMC. |
+| EM_WB                                | Write to the raw binary images to the user data area of eMMC, and the boot partition of eMMC.      |
+| EM_E                                 | Erase the user data area of eMMC, and the boot partition of eMMC.                                  |
+| DDRP                                 | Store DDR parameters into internal SRAM.                                                           |
+| DDR_S [sadr] [eadr] {loop}           | Simple write-then-read checking of DDR.                                                            |
+| DDR_RB [sadr] [eadr] {loop}          | Random data write-then-read checking of DDR.                                                       |
+| DDR_FB [sadr] [eadr] [data] {loop}   | Fixed data write-then-read checking of DDR.                                                        |
+| DQ                                   | DQ to DQS timing margin check.                                                                     |
+| SUP                                  | Change the SCIF baud rate setting.                                                                 |
+| SUD                                  | Change the SCIF baud rate setting.                                                                 |
+| RESET                                | Perform RESET of the CPU.                                                                          |
+| H                                    | Display the command help.                                                                          |
 
-#### 3.3.1. Store DDR parameters into internal SRAM
+#### 3.3.1. Display the CID registers command
+
+This command displays the contents of the CID registers of the eMMC.
+
+The following shows the procedure of this command.
+
+```text
+>EM_DCID
+
+[CID Field Data]
+[127:120]  MID  0x13
+[113:112]  CBX  0x01
+[111:104]  OID  0x4E
+[103: 56]  PNM  0x47314D31354D
+[ 55: 48]  PRV  0x10
+[ 47: 16]  PSN  0x1A5959BA
+[ 15:  8]  MDT  0xC8
+[  7:  1]  CRC  0x00
+```
+
+#### 3.3.2. Display the CSD registers command
+
+This command displays the contents of the CSD registers of eMMC.
+
+The following shows the procedure of this command.
+
+```text
+>EM_DCSD
+
+[CSD Field Data]
+[127:126]  CSD_STRUCTURE       0x03
+[125:122]  SPEC_VERS           0x04
+[119:112]  TAAC                0x7F
+...
+[ 11: 10]  FILE_FORMAT         0x00
+[  9:  8]  ECC                 0x00
+[  7:  1]  CRC                 0x00
+```
+
+#### 3.3.3. Display the EXT_CSD registers command
+
+This command displays the contents of the EXT_CSD registers of the eMMC.
+
+The following shows the procedure of this command.
+
+```text
+>EM_DECSD
+
+[EXT_CSD Field Data]
+[505:505]  EXT_SECURITY_ERR                           0x00
+[504:504]  S_CMD_SET                                  0x01
+[503:503]  HPI_FEATURES                               0x01
+...
+[142:140]  ENH_SIZE_MULT                              0x000000
+[139:136]  ENH_START_ADDR                             0x00000000
+[134:134]  SEC_BAD_BLK_MGMNT                          0x00
+```
+
+#### 3.3.4. Modify the EXT_CSD registers of eMMC command
+
+This command modifies the contents of the EXT_CSD registers in the eMMC.
+
+The values must be entered as **hexadecimal**.
+
+Example:
+
+```text
+>EM_SECSD
+  Please Input EXT_CSD Index(H'00 - H'1FF) :b1
+  EXT_CSD[B1] = 0x00
+  Please Input Value(H'00 - H'FF) :2
+  EXT_CSD[B1] = 0x02
+```
+
+#### eMMC Boot Settings
+
+Please note that for eMMC booting, the following EXT_CSD registers need to be modified:
+ - EXT_CSD[**B1**] = **0x02**
+ - EXT_CSD[**B3**] = **0x08**
+
+#### 3.3.5. Write to the S-record format images to the eMMC
+
+This command writes the S-record format image to any partition of the eMMC.
+
+##### Example of writing data for the eMMC boot
+
+| Filename                         | eMMC Save Partition | eMMC Save Sectors | Program Top Address | Description                                 |
+| -------------------------------- | ------------------- |-------------------|---------------------|---------------------------------------------|
+| bl2_bp_mmc-smarc-rzg2l_pmic.srec | boot partition1     | H'00000001        | H'11E00             | Loader                                      |
+| fip-smarc-rzg2l_pmic.srec        | boot partition1     | H'00000100        | H'00000             | ARM Trusted Firmware and U-boot in FIP file |
+
+The following shows the procedure of this command.
+The values must be entered as **hexadecimal**.
+Please enter the start sector number of the write image in hexadecimal. Sector size is 512 bytes.
+Please enter the program top address of the write image in hexadecimal.
+
+```text
+>EM_W
+EM_W Start --------------
+---------------------------------------------------------
+Please select,eMMC Partition Area.
+0:User Partition Area : 62160896 KBytes
+eMMC Sector Cnt : H'0 - H'0768FFFF
+1:Boot Partition 1 : 32256 KBytes
+eMMC Sector Cnt : H'0 - H'0000FBFF
+2:Boot Partition 2 : 32256 KBytes
+eMMC Sector Cnt : H'0 - H'0000FBFF
+---------------------------------------------------------
+  Select area(0-2)>1                                        <<<< Enter "1" here
+-- Boot Partition 1 Program -----------------------------
+Please Input Start Address in sector :1                     <<<< Enter "1" here
+Please Input Program Start Address : 11E00                  <<<< Enter "11E00" here
+Work RAM(H'50000000-H'50FFFFFF) Clear....
+please send ! ('.' & CR stop load)
+```
+
+Please download the write image in S-record format.
+
+```text
+SAVE -FLASH.......
+EM_W Complete!
+```
+
+Image writing has been completed.
+
+#### 3.3.6. Erase the eMMC
+
+This command erases any partition of the eMMC.
+
+The following shows the procedure of this command.
+
+```text
+>EM_E
+EM_E Start --------------
+---------------------------------------------------------
+Please select,eMMC Partition Area.
+ 0:User Partition Area   : 62160896 KBytes
+  eMMC Sector Cnt : H'0 - H'0768FFFF
+ 1:Boot Partition 1      : 32256 KBytes
+  eMMC Sector Cnt : H'0 - H'0000FBFF
+ 2:Boot Partition 2      : 32256 KBytes
+  eMMC Sector Cnt : H'0 - H'0000FBFF
+---------------------------------------------------------
+  Select area(0-2)>0                                       <<<< Enter "0" here
+-- User Partition Area Program --------------------------
+EM_E Complete!
+```
+
+Selected partition has been erased.
+
+#### 3.3.7. Store DDR parameters into internal SRAM
 
 This command stores DDR parameters into internal SRAM
 
@@ -170,7 +370,7 @@ DDR init completed
 ```
 If all init steps are successful, it will print "DDR init completed"
 
-#### 3.3.2. Simple write-then-read checking of DDR
+#### 3.3.8. Simple write-then-read checking of DDR
 
 This command writes fixed patterns to DDR and verifies them.
 
@@ -199,7 +399,7 @@ CHECK RESULT ---->OK
 1 command executions successful
 ```
 
-#### 3.3.3. Random data write-then-read checking of DDR
+#### 3.3.9. Random data write-then-read checking of DDR
 
 This command writes random data from SRAM to DDR, then reads it back and verifies the result.
 
@@ -220,7 +420,7 @@ CHECK RESULT ---->OK
 1 command executions successful  
 ```
 
-#### 3.3.4. Fixed data write-then-read checking of DDR
+#### 3.3.10. Fixed data write-then-read checking of DDR
 
 This command writes a fixed value (e.g., 0xA5) to DDR memory, then reads it back and verifies the result.
 
@@ -242,7 +442,7 @@ CHECK RESULT ---->OK
 1 command executions successful
 ```
 
-#### 3.3.5. DQ to DQS timing margin check
+#### 3.3.11. DQ to DQS timing margin check
 
 This command perform margin checking between DQ and DQS signals.
 
@@ -301,7 +501,7 @@ FINISH!
 
 ```
 
-#### 3.3.6. Change the SCIF baud rate setting
+#### 3.3.12. Change the SCIF baud rate setting
 
 This command will change the baud rate of the SCIF.
 
@@ -330,13 +530,22 @@ Scif speed DOWN
 Please change to 115.2Kbps baud rate setting of the terminal.
 ```
 
-#### 3.3.7. Display the command help
+#### 3.3.13. Display the command help
 
 Displays a description of the commands.
 
 The following shows the procedure of this command.
 
 ```text
+        eMMC write command
+ EM_DCID        display register CID
+ EM_DCSD        display register CSD
+ EM_DECSD       display register EXT_CSD
+ EM_SECSD       change register EXT_CSD byte
+ EM_W           write program to eMMC
+ EM_WB          write program to eMMC (Binary)
+ EM_E           erase program to eMMC
+
        Load DDR parameters
 DDRP           Store DDR parameters into internal SRAM
 
@@ -370,45 +579,37 @@ This chapter is described how to build the RZ/G2L DDR Tools.
 
 ### 4.1. Prepare the source code
 
-```text
-$ mkdir ~/DDR_Tools
-$ cd ~/DDR_Tools
+```bash
+$ export DDR_TOOLS_DIR=${PWD}/DDR_Tools
+$ mkdir -pv ${DDR_TOOLS_DIR}
+$ cd ${DDR_TOOLS_DIR}
 $ git clone https://github.com/renesas-rz/rz_tool_flash_writer.git
 $ cd rz_tool_flash_writer/
-$ git checkout v1.0 
+$ git checkout v1.1.0_RZ/G2L
 ```
 
 ### 4.2. Prepare the compiler
 
 ARM toolchain:
 
-```text  
-$ cd ~/DDR_Tools
-$ wget https://developer.arm.com/-/media/Files/downloads/gnu-a/10.2-2020.11/binrel/gcc-arm-10.2-2020.11-x86_64-aarch64-none-elf.tar.xz
-$ tar xvf gcc-arm-10.2-2020.11-x86_64-aarch64-none-elf.tar.xz
+```bash  
+$ cd ${DDR_TOOLS_DIR}
+$ wget https://developer.arm.com/-/media/Files/downloads/gnu-a/10.3-2021.07/binrel/gcc-arm-10.3-2021.07-x86_64-aarch64-none-elf.tar.xz
+$ tar xvf gcc-arm-10.3-2021.07-x86_64-aarch64-none-elf.tar.xz
 ```
 
 ### 4.3. Build the RZ/G2L DDR Tools
 
 S-record file will be built by the following command.
 
-```text  
-$ cd ~/DDR_Tools/rz_tool_flash_writer/
-$ export ARCH=arm64
-$ export CROSS_COMPILE=../gcc-arm-10.2-2020.11-x86_64-aarch64-none-elf/bin/aarch64-none-elf-
-$ export CC=${CROSS_COMPILE}gcc
-$ export AS=${CROSS_COMPILE}as
-$ export LD=${CROSS_COMPILE}ld
-$ export AR=${CROSS_COMPILE}ar
-$ export OBJDUMP=${CROSS_COMPILE}objdump
-$ export OBJCOPY=${CROSS_COMPILE}objcopy
-$ make clean
-$ make EMMC=DISABLE SERIAL_FLASH=DISABLE BOARD=RZG2L_SMARC_PMIC
+```bash  
+$ cd ${DDR_TOOLS_DIR}/rz_tool_flash_writer/scripts/
+$ ./build_flash_writer_g2l.sh RZG2L_SMARC_PMIC
 ```
 
 Output image will be available in the following directory.
 
-* ~/DDR_Tools/rz_tool_flash_writer/AArch64_output/DDR_Tool_SCIF_RZG2L_SMARC_PMIC_DDR4.mot
+* ${DDR_TOOLS_DIR}/rz_tool_flash_writer/AArch64_output/DDR_Tool_SCIF_RZG2L_SMARC_PMIC_DDR4.mot
 
 ## 5. How to run the RZ/G2L DDR Tools
 
@@ -445,7 +646,7 @@ S-record file:
 After the transfer has succeeded, the following log will be shown.
 
 ```text
-Flash writer for RZ/G2 Series V1.08 Jul.25,2025
+Flash writer for RZ/G2 Series Vx.xx MMM.DD,YYYY
 Product Code : RZ/G2L
 > 
 ```
@@ -460,7 +661,7 @@ TBD
 
 Describe the revision history of RZ/G2L DDR Tools.
 
-### 7.1. v1.00
-
-- First release.
-- Support RZ/G2L PMIC EVK board.
+| Revision | Date        |  Descriptions                                                                  |
+| -------- | ----------- | ------------------------------------------------------------------------------ |
+| v1.0.0   | Jul-25-2025 | - First release.<br>- Support RZ/G2L PMIC EVK board.                           |
+| v1.1.0   | Mar-06-2026 | - Use a shared .mot file for both eMMC and DDR Tools.<br>- Add helper scripts. |
