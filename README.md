@@ -3,7 +3,7 @@
 <Div Align="right">
 Renesas Electronics Corporation
 
-Oct-15-2025
+Mar-06-2026
 </Div>
 
 The RZ/G3E DDR Tools are essential utilities provided by Renesas to assist developers in configuring, tuning, and verifying the operation of DDR memory (LPDDR4) on the RZ/G3E MPU. 
@@ -31,19 +31,19 @@ And the RZ/G3E DDR Tools downloads the some of the raw images from Host PC via S
 
 *Note) This sample software does not support the file system. Therefore, can be write the raw image to the Serial NOR Flash.*
 
-## 1.2. License
+### 1.1. License
 
 BSD-3-Clause (please see file [LICENSE.md](LICENSE.md) for the details)
 
-## 1.3. Notice
+### 1.2. Notice
 
 The RZ/G3E DDR Tools is distributed as a sample software from Renesas without any warranty or support.
 
-## 1.4. Contributing
+### 1.3. Contributing
 
 To contribute to this layer, you should email patches to renesas-rz@renesas.com. Please send .patch files as email attachments, not embedded in the email body.
 
-## 1.5. References
+### 1.4. References
 
 The following table shows the document related to this function.
 
@@ -66,15 +66,15 @@ The following table lists the hardware needed to use this function.
 | Name         | Note                                              |
 | ------------ | ------------------------------------------------- |
 | Target board | RZ/G3E SMARC Evaluation Kit (RZ/G3E EVK)          |
-| Host PC      | Ubuntu Desktop 20.04(64bit) or later              |
+| Host PC      | Ubuntu Desktop 22.04(64bit) or later              |
 
-The following table shows Serial Flash and eMMC support for RZ/G3E EVK MPU.
+The following table shows Serial Flash and eMMC support for RZ/G3E EVK.
 
-##### Serial Flash / eMMC support status of RZ/G3E EVK MPU
+#### Serial Flash / eMMC support status of RZ/G3E EVK
 
 | Read/Write the Serial Flash | Boot from the Serial Flash | Read/Write the eMMC | Boot from the eMMC |
 | --------------------------- | -------------------------- | ------------------- | ------------------ |
-| Support                     | Support                    | Support             | Support            |
+| Supported                   | Supported                  | Supported           | Supported          |
 
 ### 2.2. Software Environment
 
@@ -230,18 +230,6 @@ please send ! ('.' & CR stop load)
 Please download the write image in S-record format.
 
 ```text
->XLS2
-===== Qspi writing of RZ/G3E Board Command =============
-Load Program to Spiflash
-Writes to any of SPI address.
- Dialog : AT25QL128A
-Program Top Address & Qspi Save Address
-===== Please Input Program Top Address ============
-  Please Input : H'8003600
-
-===== Please Input Qspi Save Address ===
-  Please Input : H'0
-please send ! ('.' & CR stop load)
 Erase SPI Flash memory...
 Erase Completed
 Write to SPI Flash memory.
@@ -249,7 +237,6 @@ Write to SPI Flash memory.
  SpiFlashMemory Stat Address : H'00000000
  SpiFlashMemory End Address  : H'00021170
 ===========================================================
-
 ```
 
 Image writing has been completed.
@@ -258,7 +245,6 @@ Image writing has been completed.
 SPI Data Clear(H'FF) Check : H'00000000-0000FFFF,Clear OK?(y/n)
 ```
 In case a message to prompt to clear data like above, please enter “y”.
-
 
 #### 3.3.2. Erase the Serial NOR Flash
 
@@ -370,16 +356,15 @@ This command writes the S-record format image to any partition of the eMMC.
 
 ##### Example of writing data for the eMMC boot
 
-| Filename                       | eMMC Save Partition | eMMC Save Sectors | Program Top Address | Description                                 |
-|--------------------------------|---------------------|-------------------|---------------------|---------------------------------------------|
-| bl2_bp_emmc-smarc-rzG3E.srec   | boot partition1     | H'00000001        | H'8003600           | Loader                                      |
-| fip-smarc-rzG3E.srec           | boot partition1     | H'00000300        | H'00000             | ARM Trusted Firmware and U-boot in FIP file |
+| Filename                     | eMMC Save Partition | eMMC Save Sectors | Program Top Address | Description                                 |
+| ---------------------------- | ------------------- | ----------------- | ------------------- | ------------------------------------------- |
+| bl2_bp_emmc-smarc-rzg3e.srec | boot partition1     | H'00000001        | H'8003600           | Loader                                      |
+| fip-smarc-rzg3e.srec         | boot partition1     | H'00000300        | H'00000             | ARM Trusted Firmware and U-boot in FIP file |
 
 The following shows the procedure of this command.
 The values must be entered as **hexadecimal**.
 Please enter the start sector number of the write image in hexadecimal. Sector size is 512 bytes.
 Please enter the program top address of the write image in hexadecimal.
-Please download the write image in S-record format.
 
 ```text
 >EM_W
@@ -399,6 +384,11 @@ Please Input Start Address in sector :1                     <<<< Enter "1" here
 Please Input Program Start Address : 8003600                <<<< Enter "8003600" here
 Work RAM (H'40000000-H'4FFFFFFF) Clear....
 please send ! ('.' & CR stop load)
+```
+
+Please download the write image in S-record format.
+
+```text
 SAVE -FLASH.......
 EM_W Complete!
 ```
@@ -627,20 +617,21 @@ This chapter is described how to build the RZ/G3E DDR Tools.
 
 ### 4.1. Prepare the source code
 
-```text
-$ mkdir ~/DDR_Tools
-$ cd ~/DDR_Tools
-$ git clone https://github.com/renesas-rz/rz_tool_flash_writer.git
+```bash
+$ export DDR_TOOLS_DIR=${PWD}/DDR_Tools
+$ mkdir -pv ${DDR_TOOLS_DIR}
+$ cd ${DDR_TOOLS_DIR}
+$ git clone https://github.com/renesas-rz/rz_tool_flash_writer
 $ cd rz_tool_flash_writer/
-$ git checkout rz_g3e
+$ git checkout v1.1.1_RZ/G3E
 ```
 
 ### 4.2. Prepare the compiler
 
 ARM toolchain:
 
-```text  
-$ cd ~/DDR_Tools
+```bash
+$ cd ${DDR_TOOLS_DIR}
 $ wget https://developer.arm.com/-/media/Files/downloads/gnu-a/10.3-2021.07/binrel/gcc-arm-10.3-2021.07-x86_64-aarch64-none-elf.tar.xz
 $ tar xvf gcc-arm-10.3-2021.07-x86_64-aarch64-none-elf.tar.xz
 ```
@@ -649,23 +640,14 @@ $ tar xvf gcc-arm-10.3-2021.07-x86_64-aarch64-none-elf.tar.xz
 
 S-record file will be built by the following command.
 
-```text  
-$ cd ~/DDR_Tools/rz_tool_flash_writer
-$ export ARCH=arm64
-$ export CROSS_COMPILE= ../gcc-arm-10.3-2021.07-x86_64-aarch64-none-elf/bin/aarch64-none-elf-
-$ export CC=${CROSS_COMPILE}gcc
-$ export AS=${CROSS_COMPILE}as
-$ export LD=${CROSS_COMPILE}ld
-$ export AR=${CROSS_COMPILE}ar
-$ export OBJDUMP=${CROSS_COMPILE}objdump
-$ export OBJCOPY=${CROSS_COMPILE}objcopy
-$ make -f makefile-g3e.gcc-arm clean
-$ make -f makefile-g3e.gcc-arm BOARD=RZG3E_SMARC
+```bash
+$ cd ${DDR_TOOLS_DIR}/rz_tool_flash_writer/scripts/
+$ ./build_flash_writer_g3e.sh RZG3E_SMARC
 ```
 
 Output image will be available in the following directory.
 
-* ~/DDR_Tools/rz_tool_flash_writer/AArch64_output/Flash_Writer_SCIF_RZG3E_SMARC_LPDDR4X.mot
+* ${DDR_TOOLS_DIR}/rz_tool_flash_writer/AArch64_output/Flash_Writer_SCIF_RZG3E_SMARC_LPDDR4X.mot
 
 ## 5. How to run the RZ/G3E DDR Tools
 
@@ -699,7 +681,7 @@ S-record file:
 After the transfer has succeeded, the following log will be shown.
 
 ```text
-Flash writer for RZ/G3E Series V0.92 Aug.07,2025
+Flash writer for RZ/G3E Series Vx.xx MMM.DD,YYYY
  Product Code : RZ/G3E
 >
 ```
@@ -721,7 +703,7 @@ TBD
 
 Describe the revision history of RZ/G3E DDR Tools.
 
-### 7.1. v1.00
-
-- First release.
-- Support RZ/G3E EVK board.
+| Revision | Date        |  Descriptions                                   |
+| -------- | ----------- | ----------------------------------------------- |
+| v1.0.0   | Oct-15-2025 | - First release.<br>- Support RZ/G3E EVK board. |
+| v1.1.1   | Mar-06-2026 | - Add helper scripts.                           |
