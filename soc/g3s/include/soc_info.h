@@ -11,8 +11,8 @@
 /**********************
 *  TITLE              *
 ***********************/
-#define WRITER_VERSION	"V1.00"		/* Software Version */
-#define WRITER_DATE	"Feb.28,2024"	/* Release date */
+#define WRITER_VERSION	"V1.02"		/* Software Version */
+#define WRITER_DATE	"Feb.12,2026"	/* Release date */
 #define	SOC_NAME "RZ/G3S"
 
 #define	DDR_CHECK_AREA1		0x000000040000000UL

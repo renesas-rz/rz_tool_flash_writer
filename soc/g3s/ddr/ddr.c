@@ -38,6 +38,7 @@ uint32_t param_phyinit_swizzle_size;
 static void phyinit_c(void);
 static void phyinit_d2h_1d(void);
 static void phyinit_d2h_2d(void);
+static void phyinit_mc(void);
 static void phyinit_i(void);
 static void phyinit_j(void);
 static void	save_retcsr(void);
@@ -46,7 +47,7 @@ static void	restore_retcsr(void);
 void ddr_setup(void)
 {
 	INFO("DDR: Setup (Rev. %s)\n", ddr_version_str);
-	INFO("Eye opening tool Ver. 1.1.0\n\n");
+	INFO("Eye opening tool Ver. 1.1.1\n\n");
 	cpg_active_ddr1();
 	wait_pclk(2);
 	setup_mc();
@@ -55,6 +56,7 @@ void ddr_setup(void)
 	phyinit_c();
 	phyinit_d2h_1d();
 	phyinit_d2h_2d();
+	phyinit_mc();
 	save_retcsr();
 	phyinit_i();
 	phyinit_j();
@@ -72,8 +74,8 @@ void ddr_retention_entry(void)
 	dwc_ddrphy_apb_poll(0x0006E0fa, 0 << 0, 1 << 0);
 	mmio_write_32(SYS_DDR_MCAR_CTRL, mmio_read_32(SYS_DDR_MCAR_CTRL) & ~0x00010000);
 	dwc_ddrphy_apb_poll(0x0006E0fa, 1 << 0, 1 << 0);
-	mmio_write_32(PWRDN_DDRPHY_CTRL, 0x00000311);
 	mmio_write_32(CPG_RST_DDR, 0x01000000);
+	mmio_write_32(PWRDN_DDRPHY_CTRL, 0x00000311);
 	wait_dficlk(18);
 #if defined(PLAT_SYSTEM_SUSPEND_vbat)
 	mmio_write_32(VBATT_BKPSR, 0x00000080);
@@ -119,6 +121,61 @@ static void phyinit_d2h_2d(void)
 {
 	phyinit_load_2d_image();
 	phyinit_exec_2d_image();
+}
+
+static void phyinit_mc(void)
+{
+	uint32_t val, num_rank, num_byte, tctrl_delay, bl, x, tx_dqs_dly;
+
+	dwc_ddrphy_apb_wr(0x6E000, 0x0);
+
+	val = DDRTOP_mc_param_rd(CS_MAP_ADDR, CS_MAP_OFFSET, CS_MAP_WIDTH);
+	num_rank = (val == 3) ? 2 : 1;
+	val = DDRTOP_mc_param_rd(MEM_DP_REDUCTION_ADDR, MEM_DP_REDUCTION_OFFSET, MEM_DP_REDUCTION_WIDTH);
+	num_byte = (val == 1) ? 1 : 2;
+	val = dwc_ddrphy_apb_rd(0x05802e);
+	tctrl_delay = ((val >> 1) + (val & 1)) + 8;
+	val = DDRTOP_mc_param_rd(BSTLEN_ADDR, BSTLEN_OFFSET, BSTLEN_WIDTH);
+	bl = (1 << val);
+
+	x = 0;
+	if (num_byte > 0) {
+		val = dwc_ddrphy_apb_rd(0x030020); x = (val > x) ? val : x;
+	}
+
+	if (num_byte > 1) {
+		val = dwc_ddrphy_apb_rd(0x031020); x = (val > x) ? val : x;
+	}
+
+	val = 16 + tctrl_delay + (2 * x);
+	DDRTOP_mc_param_wr(TDFI_PHY_RDLAT_F0_ADDR, TDFI_PHY_RDLAT_F0_OFFSET, TDFI_PHY_RDLAT_F0_WIDTH, val);
+
+	x = 0;
+	if ((num_rank > 0) && (num_byte > 0)) {
+		val = dwc_ddrphy_apb_rd(0x0300d0); x = (val > x) ? val : x;
+		val = dwc_ddrphy_apb_rd(0x0301d0); x = (val > x) ? val : x;
+	}
+
+	if ((num_rank > 0) && (num_byte > 1)) {
+		val = dwc_ddrphy_apb_rd(0x0310d0); x = (val > x) ? val : x;
+		val = dwc_ddrphy_apb_rd(0x0311d0); x = (val > x) ? val : x;
+	}
+
+	if ((num_rank > 1) && (num_byte > 0)) {
+		val = dwc_ddrphy_apb_rd(0x0300d1); x = (val > x) ? val : x;
+		val = dwc_ddrphy_apb_rd(0x0301d1); x = (val > x) ? val : x;
+	}
+
+	if ((num_rank > 1) && (num_byte > 1)) {
+		val = dwc_ddrphy_apb_rd(0x0310d1); x = (val > x) ? val : x;
+		val = dwc_ddrphy_apb_rd(0x0311d1); x = (val > x) ? val : x;
+	}
+
+	tx_dqs_dly = ((x<<6)&0xf) + (((x>>4)&0x01) + ((x>>3)&0x1));
+	val = tctrl_delay + (6 + (bl / 2)) + tx_dqs_dly;
+	DDRTOP_mc_param_wr(TDFI_WRDATA_DELAY_ADDR, TDFI_WRDATA_DELAY_OFFSET, TDFI_WRDATA_DELAY_WIDTH, val);
+
+	dwc_ddrphy_apb_wr(0x6E000, 0x1);
 }
 
 static void phyinit_i(void)

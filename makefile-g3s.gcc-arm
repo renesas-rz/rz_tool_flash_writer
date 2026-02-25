@@ -26,6 +26,15 @@ DEVICE   = RZG3S
 DDR_TYPE = LPDDR4
 endif
 
+ifeq ("$(BOARD)", "RZG3S_DEV_DDR4")
+#--------------------------------------
+# RZ/G3S Dev board
+#--------------------------------------
+FILENAME_ADD = _RZG3S_DEV
+DEVICE   = RZG3S
+DDR_TYPE = DDR4
+endif
+
 ifeq ("$(BOARD)", "RZG3S_USER_LPDDR4")
 #--------------------------------------
 # RZ/G3S User boadr (LPDDR4)
@@ -115,6 +124,10 @@ ifeq ("$(EMMC_IOV)", "1_8V")
 	CFLAGS += -DEMMC_IO_1_8V=1
 endif
 
+ifeq ("$(DDR_TYPE)", "LPDDR4")
+	CFLAGS += -DLPDDR4=1
+endif
+
 ifeq ("$(DDR_TYPE)", "INTERNAL_MEMORY")
 CFLAGS += -DINTERNAL_MEMORY_ONLY=1
 LINKER_FILE = memory_writer_g3s_internal.def.s
@@ -150,6 +163,7 @@ SRC_FILE :=	\
 	memory_cmd.c	\
 	Message.c		\
 	cpudrv.c		\
+	snprintf.c		\
 	ramckmdl.c
 
 SRC_FILE +=	\
@@ -161,28 +175,15 @@ SRC_FILE +=	\
 	soc/g3s/driver/wdt.c
 
 
-ifeq ("$(DDR_TYPE)", "LPDDR4")
+ifneq ("$(DDR_TYPE)", "INTERNAL_MEMORY")
 SRC_FILE += \
 	ddrcheck.c							\
-	snprintf.c							\
 	soc/g3s/driver/ddr_stub.c			\
 	soc/g3s/ddr/ddr.c					\
 	soc/g3s/ddr/ddr_misc.c				\
 	soc/g3s/ddr/ddr_retcsr_lpddr4.c		\
 	soc/g3s/ddr/ddr_setup_lpddr4.c		\
 	soc/g3s/ddr/decode_streaming_message_lpddr4.c
-endif
-
-ifeq ("$(DDR_TYPE)", "DDR4")
-SRC_FILE +=	\
-	ddrcheck.c							\
-	snprintf.c							\
-	soc/g3s/driver/ddr_stub.c			\
-	soc/g3s/ddr/ddr.c					\
-	soc/g3s/ddr/ddr_misc.c				\
-	soc/g3s/ddr/ddr_retcsr_ddr4.c		\
-	soc/g3s/ddr/ddr_setup_ddr4.c		\
-	soc/g3s/ddr/decode_streaming_message_ddr4.c
 endif
 
 ifeq ("$(SERIAL_FLASH)", "ENABLE")
