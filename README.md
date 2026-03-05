@@ -10,17 +10,17 @@ Please follow the instructions for each supported Renesas evaluation board:
 * **RZ/G2L**
   * URL: https://github.com/renesas-rz/rz_tool_flash_writer.git
   * Branch: rz_g2l
-  * Revision: 30f89da6ab7dba18a9090257f2a72b31ddc63cb0
-  * (Tag: v1.0)
+  * Revision: f85d85f70d515229c733454f565ff2de9177afd3
+  * (Tag: v1.1.0_RZ/G2L)
 * **RZ/G3S**
   * URL: https://github.com/renesas-rz/rz_tool_flash_writer.git
   * Branch: rz_g3s
-  * Revision: aea8c3c62099a95c81aea86e11cbf764e4822b87
-  * (Tag: v1.1_RZ/G3S)
+  * Revision: c53330296e55ee9b037e88da79b518b7fe25fa32
+  * (Tag: v1.1.1_RZ/G3S)
 * **RZ/G3E**
   * URL: https://github.com/renesas-rz/rz_tool_flash_writer.git
   * Branch: rz_g3e
-  * Revision: e47b57af43c3949c1c880428020c237624fdf182
-  * (Tag: v1.1_RZ/G3E)
+  * Revision: f5a6db5deff47ef9450a1c3efa77be6faba8d4c7
+  * (Tag: v1.1.1_RZ/G3E)
 
 
