@@ -10,7 +10,7 @@ endif
 
 ifeq ("$(BOARD)", "RZG3L_SMARC")
 #--------------------------------------
-# RZ/G3L Dev board
+# RZ/G3L Smarc board
 #--------------------------------------
 FILENAME_ADD = _RZG3L_SMARC
 DEVICE     = RZG3L
@@ -120,11 +120,17 @@ ifeq ("$(EMMC_IOV)", "1_8V")
 endif
 
 ifeq ("$(DDR_TYPE)", "INTERNAL_MEMORY")
-CFLAGS += -DINTERNAL_MEMORY_ONLY=1
-LINKER_FILE = memory_writer_g3l_internal.def.s
+	CFLAGS += -DINTERNAL_MEMORY_ONLY=1
+	LINKER_FILE = memory_writer_g3l_internal.def.s
 else
-CFLAGS += -DINTERNAL_MEMORY_ONLY=0
-LINKER_FILE = memory_writer_g3l.def.s
+	CFLAGS += -DINTERNAL_MEMORY_ONLY=0
+	LINKER_FILE = memory_writer_g3l.def.s
+endif
+
+ifeq ("$(DDR_PARAM_LOAD)", "ENABLE")
+	CFLAGS += -DDDR_PARAM_LOAD=1
+else
+	CFLAGS += -DDDR_PARAM_LOAD=0
 endif
 
 MEMORY_DEF := $(LINKER_FILE:%.def.s=$(OBJECT_DIR)/%.def)
@@ -168,11 +174,19 @@ ifneq ("$(DDR_TYPE)", "INTERNAL_MEMORY")
 SRC_FILE += \
 	ddrcheck.c				\
 	soc/g3l/driver/ddr_stub.c		\
-	soc/g3l/ddr/ddr.c			\
 	soc/g3l/ddr/ddr_misc.c			\
 	soc/g3l/ddr/ddr_retcsr_lpddr4.c		\
-	soc/g3l/ddr/ddr_setup_lpddr4.c		\
 	soc/$(DDR_PARAM_PATH)/ddr_param_def_lpddr4.c
+
+ifneq ("$(DDR_PARAM_LOAD)", "ENABLE")
+SRC_FILE += \
+	soc/g3l/ddr/ddr_setup_lpddr4.c	\
+	soc/g3l/ddr/ddr.c
+else
+SRC_FILE += \
+	soc/g3l/ddr/ddr_setup_lpddr4_en_ddrp.c	\
+	soc/g3l/ddr/ddr_en_ddrp.c
+endif
 endif
 
 ifeq ("$(SERIAL_FLASH)", "ENABLE")

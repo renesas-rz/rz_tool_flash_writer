@@ -64,6 +64,9 @@ void Main(void)
 #endif
 
 #if (INTERNAL_MEMORY_ONLY == 0)
+#if (DDR_PARAM_LOAD == 1)
+	ddr_load_default_param();
+#endif
 	DDR_SETUP();
 #endif
 	gUDump[0] =  gUMem[0] =  0;

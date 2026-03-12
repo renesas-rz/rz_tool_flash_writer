@@ -28,6 +28,11 @@ const char *const AllHelpMess[ALL_HELP_MESS_LINE] = {
 				" EM_E           erase program to eMMC",
 				"",
 #endif /* EMMC == 1 */
+#if ((INTERNAL_MEMORY_ONLY == 0) && (DDR_PARAM_LOAD == 1))
+				"        Load DDR parameters",
+				" DDRP           Store DDR parameters into internal SRAM",
+				"",
+#endif /* ((INTERNAL_MEMORY_ONLY == 0) && (DDR_PARAM_LOAD == 1)) */
 #if (USB_ENABLE == 0)
 				" SUP            Scif speed UP (Change to speed up baud rate setting)",
 				" SUD            Scif speed DOWN (Change to speed down baud rate setting)",

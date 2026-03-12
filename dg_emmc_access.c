@@ -172,7 +172,6 @@ static EMMC_ERROR_CODE	dg_emmc_init(void)
 *****************************************************************/
 void dg_emmc_write(EMMC_WRITE_COMMAND wc)
 {
-
 	EMMC_ERROR_CODE result;
 	EMMC_SECTOR	sectorData;
 	EMMC_PARTITION	partitionArea;
