@@ -129,8 +129,11 @@ endif
 
 ifeq ("$(DDR_PARAM_LOAD)", "ENABLE")
 	CFLAGS += -DDDR_PARAM_LOAD=1
+	STACK_BYTES := 32768
 else
 	CFLAGS += -DDDR_PARAM_LOAD=0
+	STACK_BYTES := 4096
+
 endif
 
 MEMORY_DEF := $(LINKER_FILE:%.def.s=$(OBJECT_DIR)/%.def)
@@ -267,7 +270,7 @@ $(OUTPUT_DIR):
 # Compile
 #------------------------------------------
 $(OBJECT_DIR)/%.o:$(BOOTDIR)/%.s
-	$(AS)  -g $(CPU) $(AS_NEON) --MD $(patsubst %.o,%.d,$@) $(INCLUDES) -I $(BOOTDIR) -I $(INCLUDE_DIR) -I $(DDR_COMMON) -I $(DDR_SOC) $< -o $@ --defsym $(AArch32_64)=0 --defsym $(BOOT_DEF)=0 --defsym $(TOOL_DEF)=0
+	$(AS)  -g $(CPU) $(AS_NEON) --MD $(patsubst %.o,%.d,$@) $(INCLUDES) -I $(BOOTDIR) -I $(INCLUDE_DIR) -I $(DDR_COMMON) -I $(DDR_SOC) $< -o $@ --defsym $(AArch32_64)=0 --defsym $(BOOT_DEF)=0 --defsym $(TOOL_DEF)=0 --defsym STACK_BYTES=$(STACK_BYTES)
 
 $(OBJECT_DIR)/%.o:%.c
 	@if [ ! -e `dirname $@` ]; then mkdir -p `dirname $@`; fi
