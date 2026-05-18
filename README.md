@@ -3,14 +3,16 @@
 <Div Align="right">
 Renesas Electronics Corporation
 
-Mar-06-2026
+Jul-30-2026
 </Div>
 
-The RZ/G3E DDR Tools are essential utilities provided by Renesas to assist developers in configuring, tuning, and verifying the operation of DDR memory (LPDDR4) on the RZ/G3E MPU. 
+The RZ/G3E Flash Writer is sample software for Renesas RZ/G3E MPU. It downloads binary images from a host PC via SCIF or USB and writes those images to Serial NOR Flash or eMMC.
+
+The RZ/G3E DDR Tools, based on the RZ/G3E Flash Writer, are essential utilities provided by Renesas to help developers configure, tune, and verify LPDDR4 memory operation on the RZ/G3E MPU.
 
 ## 1. Overview
 
-This document explains about RZ/G3E DDR Tools sample software for Renesas RZ/G3E Group MPUs.
+This document explains the RZ/G3E DDR Tools for Renesas RZ/G3E MPU, which is based on the RZ/G3E Flash Writer.
 
 The RZ/G3E DDR Tools is downloaded from the Host PC via SCIF by boot ROM.
 It loads the DDR parameters from the Host PC via SCIF and provides functions such as logging training messages, Eye Opening Tool, and stress tests.
@@ -21,9 +23,9 @@ And the RZ/G3E DDR Tools downloads the some of the raw images from Host PC via S
 
 [Chapter 3](#3-software) describes the software.
 
-[Chapter 4](#4-how-to-build-the-rzg2-flash-writer) explains example of how to build the RZ/G3E DDR Tools.
+[Chapter 4](#4-how-to-build-the-rzg3e-ddr-tools) explains example of how to build the RZ/G3E DDR Tools.
 
-[Chapter 5](#5-how-to-run-the-rzg2-flash-writer) explains example of how to perform the RZ/G3E DDR Tools.
+[Chapter 5](#5-how-to-run-the-rzg3e-ddr-tools) explains example of how to perform the RZ/G3E DDR Tools.
 
 [Chapter 6](#6-error-case-to-handle) explains how to handle error case.
 
@@ -66,7 +68,7 @@ The following table lists the hardware needed to use this function.
 | Name         | Note                                              |
 | ------------ | ------------------------------------------------- |
 | Target board | RZ/G3E SMARC Evaluation Kit (RZ/G3E EVK)          |
-| Host PC      | Ubuntu Desktop 22.04(64bit) or later              |
+| Host PC      | Ubuntu Desktop 22.04 (64bit) or later             |
 
 The following table shows Serial Flash and eMMC support for RZ/G3E EVK.
 
@@ -172,14 +174,18 @@ The following table shows the command list.
 
 #### 3.3.1. Write to the S-record format images to the Serial Flash
 
+> [!NOTE]
+>
+> In case `DDR_PARAM_LOAD` is enabled (refer to [4.3. Build the RZ/G3E DDR Tools](#43-build-the-rzg3e-ddr-tools)). Please make sure the DDR parameters are loaded successfully (refer to [3.3.9. Store DDR parameters into internal SRAM](#339-store-ddr-parameters-into-internal-sram)).
+
 This command writes the S-record format image to Serial Flash.
 
 ##### Example of writing data for the Serial Flash boot
 
 | Filename                    | Program Top Address | Flash Save Address | Description                                 |
 | --------------------------- | ------------------- | ------------------ | ------------------------------------------- |
-| bl2_bp_spi-smarc-rzG3E.srec | H'8003600           | H'00000            | Loader                                      |
-| fip-smarc-rzG3E.srec        | H'00000             | H'60000            | ARM Trusted Firmware and U-boot in FIP file |
+| bl2_bp_spi-smarc-rzg3e.srec | H'8003600           | H'00000            | Loader                                      |
+| fip-smarc-rzg3e.srec        | H'00000             | H'60000            | ARM Trusted Firmware and U-boot in FIP file |
 
 The following shows the procedure of this command.
 
@@ -352,6 +358,10 @@ Please note that for eMMC booting, the following EXT_CSD registers need to be mo
 
 #### 3.3.7. Write to the S-record format images to the eMMC
 
+> [!NOTE]
+>
+> In case `DDR_PARAM_LOAD` is enabled (refer to [4.3. Build the RZ/G3E DDR Tools](#43-build-the-rzg3e-ddr-tools)). Please make sure the DDR parameters are loaded successfully (refer to [3.3.9. Store DDR parameters into internal SRAM](#339-store-ddr-parameters-into-internal-sram)).
+
 This command writes the S-record format image to any partition of the eMMC.
 
 ##### Example of writing data for the eMMC boot
@@ -420,7 +430,11 @@ EM_E Complete!
 
 Selected partition has been erased.
 
-#### 3.3.9. Store DDR parameters into internal SRAM and run Eye Opening Tool
+#### 3.3.9. Store DDR parameters into internal SRAM
+
+> [!NOTE]
+>
+> To use this feature. Please enable `DDR_PARAM_LOAD` when building the RZ/G3E DDR Tools (refer to [4.3. Build the RZ/G3E DDR Tools](#43-build-the-rzg3e-ddr-tools)).
 
 This command stores DDR parameters into internal SRAM and runs Eye Opening Tool
 
@@ -439,7 +453,7 @@ Input file size with 0x11E58 = 73,304 bytes
 Please Input File size(byte) : H'11E58
 Please send ! (binary)
 ```
-Send DDR parameter file (binary) from PC. You can use this sample file "DDR_Parameters_Normal.bin". After the DDR parameters are loaded, Eye Opening Tool runs automatically. The raw test result like below is output on the terminal.
+Send DDR parameter file (binary) from PC. You can use this sample file "ddr_param_def_lpddr4_debug2d.bin" (refer to [4.4. Generate DDR parameters (*.bin)](#44-generate-ddr-parameters-bin)). After the DDR parameters are loaded, Eye Opening Tool runs automatically. The raw test result like below is output on the terminal.
 
 ```text
 >DDRP
@@ -465,6 +479,10 @@ phyinit_d2h_1d
 ```
 
 #### 3.3.10. Simple write-then-read checking of DDR
+
+> [!NOTE]
+>
+> To use this feature. Please enable `DDR_PARAM_LOAD` when building the RZ/E DDR Tools (refer to [4.3. Build the RZ/G3E DDR Tools](#43-build-the-rzg3e-ddr-tools)) and make sure the DDR parameters are loaded successfully (refer to [3.3.9. Store DDR parameters into internal SRAM](#339-store-ddr-parameters-into-internal-sram)).
 
 This command writes fixed patterns to DDR and verifies them.
 
@@ -495,6 +513,10 @@ CHECK RESULT ---->OK
 
 #### 3.3.11. Random data write-then-read checking of DDR
 
+> [!NOTE]
+>
+> To use this feature. Please enable `DDR_PARAM_LOAD` when building the RZ/G3E DDR Tools (refer to [4.3. Build the RZ/G3E DDR Tools](#43-build-the-rzg3e-ddr-tools)) and make sure the DDR parameters are loaded successfully (refer to [3.3.9. Store DDR parameters into internal SRAM](#339-store-ddr-parameters-into-internal-sram)).
+
 This command writes random data from SRAM to DDR, then reads it back and verifies the result.
 
 sadr and eadr are hexadecimal values that represent the start address, and end address respectively.
@@ -515,6 +537,10 @@ CHECK RESULT ---->OK
 ```
 
 #### 3.3.12. Fixed data write-then-read checking of DDR
+
+> [!NOTE]
+>
+> To use this feature. Please enable `DDR_PARAM_LOAD` when building the RZ/G3E DDR Tools (refer to [4.3. Build the RZ/G3E DDR Tools](#43-build-the-rzg3e-ddr-tools)) and make sure the DDR parameters are loaded successfully (refer to [3.3.9. Store DDR parameters into internal SRAM](#339-store-ddr-parameters-into-internal-sram)).
 
 This command writes a fixed value (e.g., 0xA5) to DDR memory, then reads it back and verifies the result.
 
@@ -623,7 +649,7 @@ $ mkdir -pv ${DDR_TOOLS_DIR}
 $ cd ${DDR_TOOLS_DIR}
 $ git clone https://github.com/renesas-rz/rz_tool_flash_writer
 $ cd rz_tool_flash_writer/
-$ git checkout v1.1.1_RZ/G3E
+$ git checkout v1.2.0_RZ/G3E
 ```
 
 ### 4.2. Prepare the compiler
@@ -645,9 +671,27 @@ $ cd ${DDR_TOOLS_DIR}/rz_tool_flash_writer/scripts/
 $ ./build_flash_writer_g3e.sh RZG3E_SMARC
 ```
 
-Output image will be available in the following directory.
+> [!NOTE]
+>
+> DDR features and DDR debug log (DDR debug log is used to run the Eye Opening Tool) are enabled by default in `build_flash_writer_g3e.sh`.
+>
+> To disable them, set `DDR_PARAMLOAD=DISABLE` and `DDR_DEBUG=0` in the build script (`build_flash_writer_g3e.sh`), or remove these options before building the RZ/G3E DDR Tools.
+
+Output image will be available in the following directory:
 
 * ${DDR_TOOLS_DIR}/rz_tool_flash_writer/AArch64_output/Flash_Writer_SCIF_RZG3E_SMARC_LPDDR4X.mot
+
+### 4.4. Generate DDR parameters (*.bin)
+
+Run the following command to convert the DDR parameters source code in the flash_writer repository (*.c files) into a binary file:
+
+```bash
+$ cd ${DDR_TOOLS_DIR}/rz_tool_flash_writer/scripts/
+$ ./g3x_c2bin.sh ${INSTALL_UTILITY_DIR}/rz_tool_flash_writer/soc/g3e/board/smarc/ddr_param_def_lpddr4_debug2d.c
+```
+
+A binary file will be generated at the following path:
+* ${DDR_TOOLS_DIR}/rz_tool_flash_writer/scripts/ddr_param_def_lpddr4_debug2d.bin
 
 ## 5. How to run the RZ/G3E DDR Tools
 
@@ -707,3 +751,4 @@ Describe the revision history of RZ/G3E DDR Tools.
 | -------- | ----------- | ----------------------------------------------- |
 | v1.0.0   | Oct-15-2025 | - First release.<br>- Support RZ/G3E EVK board. |
 | v1.1.1   | Mar-06-2026 | - Add helper scripts.                           |
+| v1.2.0   | Jul-30-2026 | - Add DDR_PARAM_LOAD and DDR_DEBUG options.     |

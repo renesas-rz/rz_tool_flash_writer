@@ -7,7 +7,6 @@
 #ifndef DEBUG_H
 #define DEBUG_H
 
-#define DDR_DEBUG 1
 #if DDR_DEBUG
 extern int print(const char *fmt, ...);
 #define	INFO(...)	print(__VA_ARGS__)
@@ -15,6 +14,7 @@ extern int print(const char *fmt, ...);
 #define	LOG(...)	print(__VA_ARGS__)
 #define	ERROR(...)	print(__VA_ARGS__)
 #else
+#define	LOG(...)
 #define	INFO(...)
 #define	ERROR(...)
 #endif
