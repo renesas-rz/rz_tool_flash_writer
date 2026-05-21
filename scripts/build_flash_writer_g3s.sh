@@ -16,4 +16,4 @@ export OBJCOPY=${CROSS_COMPILE}objcopy
 
 cd ../
 make -f makefile-g3s.gcc-arm clean
-make -f makefile-g3s.gcc-arm BOARD=${1}
+make -f makefile-g3s.gcc-arm BOARD=${1} DDR_PARAM_LOAD=ENABLE DDR_DEBUG=1

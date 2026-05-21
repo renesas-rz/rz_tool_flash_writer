@@ -369,6 +369,7 @@ static int32_t TPRAMCK( uint8_t *startAddr, uint8_t *endAddr )
 	return NORMAL_END;
 }
 
+#if (DDR_PARAM_LOAD == 1)
 static void fill_data_char_arr1D(char *dest, char *src, uint8_t size, uint32_t *offset){
 	for (int i = 0; i < size; i++) {
 		dest[i] = (char)src[*offset];
@@ -502,19 +503,23 @@ void dgDdrLoadParam(void)
 
 	PutStr("DDR parameters loaded", 1);
 	DDR_SETUP();
+	PutStr("DDR Setup completed", 1);
 	f_ddr_param_initialized = 1;
 }
+#endif
 
 void dgDdrTest(void)
 {
+	uint32_t readData, chCnt;
+	char	str[16];
+
+#if ((INTERNAL_MEMORY_ONLY == 0) && (DDR_PARAM_LOAD == 1))
 	if (f_ddr_param_initialized == 0)
 	{
 		PutStr("DDR not initialized, please send DDR parameters via \'DDRP\' command", 1);
 		return;
 	}
-
-	uint32_t readData, chCnt;
-	char	str[16];
+#endif
 
 	PutStr("=== DDR R/W CHECK ====",1);
 	PutStr("=== Memory map "SOC_NAME" ===",1);
@@ -558,18 +563,19 @@ void dgDdrTest(void)
 #endif
 }
 
+#if (DDR_PARAM_LOAD == 1)
 void dgDdrSimple(void)
 {
+	uint64_t startAdd, endAdd;
+	uint32_t setPara, l, loop;
+	char decRtn;
+	char str[16];
+	
 	if (f_ddr_param_initialized == 0)
 	{
 		PutStr("DDR not initialized, please send DDR parameters via \'DDRP\' command", 1);
 		return;
 	}
-
-	uint64_t startAdd, endAdd;
-	uint32_t setPara, l, loop;
-	char decRtn;
-	char str[16];
 
 	startAdd = endAdd = 0x0;
 	decRtn = DecodeForm04(&startAdd, &endAdd, &loop, &setPara);
@@ -692,17 +698,17 @@ error:
 
 void dgDdrRandb(void)
 {
-	if (f_ddr_param_initialized == 0)
-	{
-		PutStr("DDR not initialized, please send DDR parameters via \'DDRP\' command", 1);
-		return;
-	}
-
 	uint64_t startAdd, endAdd;
 	uint32_t setPara, l, loop;
 	int i;
 	char decRtn;
 	char str[16];
+
+	if (f_ddr_param_initialized == 0)
+	{
+		PutStr("DDR not initialized, please send DDR parameters via \'DDRP\' command", 1);
+		return;
+	}
 
 	startAdd = endAdd = 0x0;
 	decRtn = DecodeForm04(&startAdd, &endAdd, &loop, &setPara);
@@ -749,17 +755,17 @@ void dgDdrRandb(void)
 
 void dgDdrFixedb(void)
 {
-	if (f_ddr_param_initialized == 0)
-	{
-		PutStr("DDR not initialized, please send DDR parameters via \'DDRP\' command", 1);
-		return;
-	}
-
 	uint64_t startAdd, endAdd, val;
 	uint32_t setPara, l, loop;
 	int i;
 	char decRtn;
 	char str[16];
+	
+	if (f_ddr_param_initialized == 0)
+	{
+		PutStr("DDR not initialized, please send DDR parameters via \'DDRP\' command", 1);
+		return;
+	}
 
 	startAdd = endAdd = val = 0x0;
 	decRtn = DecodeForm05(&startAdd, &endAdd, &val, &loop, &setPara);
@@ -811,3 +817,57 @@ void dgDdrFixedb(void)
 		PutStr(" command executions successful", 1);
 	}
 }
+#else
+void dgRamTest(void)
+{
+	uint64_t ramck1st,ramck2nd;
+	uint32_t setPara;
+
+	char decRtn;
+	char str[10];
+
+	ramck1st=ramck2nd=0x0;
+	decRtn = DecodeForm5(&ramck1st,&ramck2nd,&setPara);
+	if (!(setPara&0x3))
+	{
+		PutStr("Syntax Error",1);	return;
+	}
+	else if (decRtn==1)
+	{
+		PutStr("Syntax Error",1);	return;
+	}
+	else if (decRtn==2)
+	{
+		PutStr("Address Size Error",1);	return;
+	}
+	else
+	{
+		PutStr("== RAM CHECK (Byte Access) ===",1);
+		PutStr("- Marching Data Check --------",1);
+		PutStr(" [ Write H'00               ]",1);
+		PutStr(" [ Check H'00 -> Write H'55 ]",1);
+		PutStr(" [ Check H'55 -> Write H'AA ]",1);
+		PutStr(" [ Check H'AA -> Write H'FF ]",1);
+		PutStr(" [ Check H'FF               ]",1);
+		PutStr("- Decoder Pattern Check ------",1);
+		PutStr(" [ Write H'00,H'01,H'02 ... ]",1);
+		PutStr(" [ Check H'00,H'01,H'02 ... ]",1);
+		PutStr("CHECK RESULT",0);
+	}
+	if (TPRAMCK( ((uint8_t *)ramck1st),((uint8_t *)(ramck1st+ramck2nd)) ) )
+	{
+		PutStr("---->NG",1);
+		Data2HexAscii_64(gSubErrAdd,str,CPU_BYTE_SIZE);
+		PutStr("ERROR ADDRESS:",0); PutStr(str,1);
+		Data2HexAscii_64(gSubErrData,str,CPU_BYTE_SIZE);
+		PutStr("ERROR DATA   :",0); PutStr(str,1);
+		Data2HexAscii_64(gSubTrueData,str,CPU_BYTE_SIZE);
+		PutStr("TRUE DATA    :",0); PutStr(str,1);
+		return;
+	}
+	else
+	{
+		PutStr("---->OK",1);
+	}
+}
+#endif

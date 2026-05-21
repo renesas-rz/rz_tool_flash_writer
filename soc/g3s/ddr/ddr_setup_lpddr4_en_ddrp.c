@@ -11,24 +11,7 @@
 
 #include "ddr_regs.h"
 #include "ddr_private.h"
-
-extern const uint32_t param_setup_mc[][2];
-extern const uint32_t param_phyinit_c[][2];
-extern const uint16_t param_phyinit_1d_dat1[];
-extern const uint16_t param_phyinit_2d_dat1[];
-extern const uint32_t param_phyinit_i[][2];
-extern const uint16_t param_phyinit_1d_dat0[];
-extern const uint16_t param_phyinit_2d_dat0[];
-extern const uint32_t param_phyinit_swizzle[][2];
-
-extern const uint32_t param_setup_mc_size;
-extern const uint32_t param_phyinit_c_size;
-extern const uint32_t param_phyinit_1d_dat1_size;
-extern const uint32_t param_phyinit_2d_dat1_size;
-extern const uint32_t param_phyinit_i_size;
-extern const uint32_t param_phyinit_1d_dat0_size;
-extern const uint32_t param_phyinit_2d_dat0_size;
-extern const uint32_t param_phyinit_swizzle_size;
+#include "ddr.h"
 
 void setup_mc(void)
 {

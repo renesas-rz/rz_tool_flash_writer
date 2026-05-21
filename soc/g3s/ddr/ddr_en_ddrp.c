@@ -12,11 +12,10 @@
 #include <vbatt_regs.h>
 #include <cpg.h>
 #include <ddr.h>
+#include <string.h>
 
 #include "ddr_regs.h"
 #include "ddr_private.h"
-
-extern const char ddr_version_str[];
 
 static void phyinit_c(void);
 static void phyinit_d2h_1d(void);
@@ -26,6 +25,28 @@ static void phyinit_i(void);
 static void phyinit_j(void);
 static void	save_retcsr(void);
 static void	restore_retcsr(void);
+
+char ddr_version_str[DDR_VERSION_STR];
+uint32_t param_setup_mc[PARAM_SETUP_MC_MAX][2];
+uint32_t param_phyinit_c[PARAM_PHYINIT_C_MAX][2];
+uint16_t param_phyinit_1d_dat1[PARAM_PHYINIT_1D_DAT1_MAX];
+uint16_t param_phyinit_2d_dat1[PARAM_PHYINIT_2D_DAT1_MAX];
+uint32_t param_phyinit_i[PARAM_PHYINIT_I_MAX][2];
+uint16_t param_phyinit_1d_dat0[PARAM_PHYINIT_1D_DAT0_MAX];
+uint16_t param_phyinit_2d_dat0[PARAM_PHYINIT_2D_DAT0_MAX];
+uint32_t param_phyinit_swizzle[PARAM_PHYINIT_SWIZZLE_MAX][2];
+
+uint32_t param_setup_mc_size;
+uint32_t param_phyinit_c_size;
+uint32_t param_phyinit_1d_dat1_size;
+uint32_t param_phyinit_2d_dat1_size;
+uint32_t param_phyinit_i_size;
+uint32_t param_phyinit_1d_dat0_size;
+uint32_t param_phyinit_2d_dat0_size;
+uint32_t param_phyinit_swizzle_size;
+
+/* Status of DDR Parameters initialized or not */
+uint8_t f_ddr_param_initialized = 0;
 
 void ddr_setup(void)
 {

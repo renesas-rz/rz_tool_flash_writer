@@ -7,7 +7,7 @@
 /**********************
 * COMMAND_UNITE       *
 ***********************/
-#define		COMMAND_UNIT	30
+#define		COMMAND_UNIT		30
 #define		NORMAL_END		0
 #define		ERROR_END		1
 

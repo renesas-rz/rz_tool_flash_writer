@@ -11,7 +11,9 @@
 
 #define	RET_CSR_SIZE		0x400
 #define	DDR_SETUP			ddr_setup
+extern uint32_t ddr_csr_table[RET_CSR_SIZE];
 
+#if (DDR_PARAM_LOAD == 1)
 #define DDR_VERSION_STR           8
 
 /* RZG3S >>> */
@@ -60,8 +62,6 @@
     ((uint32_t)(p)[0])       | \
     ((uint32_t)(p)[1] << 8) )
 
-extern uint32_t ddr_csr_table[RET_CSR_SIZE];
-
 extern char ddr_version_str[DDR_VERSION_STR];
 extern uint32_t param_setup_mc[PARAM_SETUP_MC_MAX][2];
 extern uint32_t param_phyinit_c[PARAM_PHYINIT_C_MAX][2];
@@ -80,6 +80,10 @@ extern uint32_t param_phyinit_i_size;
 extern uint32_t param_phyinit_1d_dat0_size;
 extern uint32_t param_phyinit_2d_dat0_size;
 extern uint32_t param_phyinit_swizzle_size;
+
+/* Status of DDR Parameters initialized or not */
+extern uint8_t f_ddr_param_initialized;
+#endif
 
 void ddr_setup(void);
 void ddr_retention_entry(void);

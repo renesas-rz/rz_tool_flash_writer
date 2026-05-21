@@ -15,6 +15,7 @@ ifeq ("$(BOARD)", "RZG3S_SMARC")
 FILENAME_ADD = _RZG3S_SMARC
 DEVICE   = RZG3S
 DDR_TYPE = LPDDR4
+DDR_PARAM_PATH = g3s/board/smarc
 endif
 
 ifeq ("$(BOARD)", "RZG3S_DEV")
@@ -24,6 +25,7 @@ ifeq ("$(BOARD)", "RZG3S_DEV")
 FILENAME_ADD = _RZG3S_DEV
 DEVICE   = RZG3S
 DDR_TYPE = LPDDR4
+DDR_PARAM_PATH = g3s/board/dev
 endif
 
 ifeq ("$(BOARD)", "RZG3S_DEV_DDR4")
@@ -33,6 +35,7 @@ ifeq ("$(BOARD)", "RZG3S_DEV_DDR4")
 FILENAME_ADD = _RZG3S_DEV
 DEVICE   = RZG3S
 DDR_TYPE = DDR4
+DDR_PARAM_PATH = g3s/board/dev_ddr4
 endif
 
 ifeq ("$(BOARD)", "RZG3S_USER_LPDDR4")
@@ -42,6 +45,7 @@ ifeq ("$(BOARD)", "RZG3S_USER_LPDDR4")
 FILENAME_ADD = _RZG3S_USER
 DEVICE   = RZG3S
 DDR_TYPE = LPDDR4
+DDR_PARAM_PATH = g3s/board/custom
 endif
 
 ifeq ("$(BOARD)", "RZG3S_USER_DDR4")
@@ -51,6 +55,7 @@ ifeq ("$(BOARD)", "RZG3S_USER_DDR4")
 FILENAME_ADD = _RZG3S_USER
 DEVICE   = RZG3S
 DDR_TYPE = DDR4
+DDR_PARAM_PATH = g3s/board/custom
 endif
 
 ifeq ("$(BOARD)", "RZG3S_UNIVERSAL")
@@ -60,6 +65,7 @@ ifeq ("$(BOARD)", "RZG3S_UNIVERSAL")
 FILENAME_ADD = _RZG3S_UNIVERSAL
 DEVICE   = RZG3S
 DDR_TYPE = INTERNAL_MEMORY
+DDR_PARAM_PATH = g3s/board/custom
 endif
 
 # Select SERIAL_FLASH("ENABLE"or"DISABLE" )
@@ -136,6 +142,20 @@ CFLAGS += -DINTERNAL_MEMORY_ONLY=0
 LINKER_FILE = memory_writer_g3s.def.s
 endif
 
+ifeq ("$(DDR_DEBUG)", "1")
+	CFLAGS += -DDDR_DEBUG=1
+else
+	CFLAGS += -DDDR_DEBUG=0
+endif
+
+ifeq ("$(DDR_PARAM_LOAD)", "ENABLE")
+	CFLAGS += -DDDR_PARAM_LOAD=1
+	STACK_BYTES := 32768
+else
+	CFLAGS += -DDDR_PARAM_LOAD=0
+	STACK_BYTES := 4096
+endif
+
 MEMORY_DEF := $(LINKER_FILE:%.def.s=$(OBJECT_DIR)/%.def)
 
 DDR_DEF = ddr_qos_init_setting
@@ -177,18 +197,27 @@ SRC_FILE +=	\
 
 ifneq ("$(DDR_TYPE)", "INTERNAL_MEMORY")
 SRC_FILE += \
-	ddrcheck.c							\
+	ddrcheck.c					\
 	soc/g3s/driver/ddr_stub.c			\
-	soc/g3s/ddr/ddr.c					\
 	soc/g3s/ddr/ddr_misc.c				\
-	soc/g3s/ddr/ddr_retcsr_lpddr4.c		\
-	soc/g3s/ddr/ddr_setup_lpddr4.c		\
+	soc/g3s/ddr/ddr_retcsr_lpddr4.c			\
 	soc/g3s/ddr/decode_streaming_message_lpddr4.c
+
+ifneq ("$(DDR_PARAM_LOAD)", "ENABLE")
+SRC_FILE += \
+	soc/g3s/ddr/ddr_setup_lpddr4.c	\
+	soc/g3s/ddr/ddr.c		\
+	soc/$(DDR_PARAM_PATH)/ddr_param_def_lpddr4.c
+else
+SRC_FILE += \
+	soc/g3s/ddr/ddr_setup_lpddr4_en_ddrp.c	\
+	soc/g3s/ddr/ddr_en_ddrp.c
+endif
 endif
 
 ifeq ("$(SERIAL_FLASH)", "ENABLE")
 SRC_FILE +=	\
-	dgmodul4.c					\
+	dgmodul4.c			\
 	soc/g3s/driver/r_xspi_drv.c	\
 	xspiflash1drv.c
 endif
@@ -197,8 +226,8 @@ ifeq ("$(EMMC)", "ENABLE")
 SRC_FILE +=	\
 	dg_emmc_config.c	\
 	dg_emmc_access.c	\
-	emmc_cmd.c			\
-	emmc_init.c			\
+	emmc_cmd.c		\
+	emmc_init.c		\
 	emmc_interrupt.c	\
 	emmc_mount.c		\
 	emmc_write.c		\
@@ -207,7 +236,7 @@ SRC_FILE +=	\
 endif
 
 INCLUDES = \
-	-I include			\
+	-I include		\
 	-I soc/g3s/include 	\
 	-I soc/g3s/ddr
 
@@ -258,7 +287,7 @@ $(OUTPUT_DIR):
 # Compile
 #------------------------------------------
 $(OBJECT_DIR)/%.o:$(BOOTDIR)/%.s
-	$(AS)  -g $(CPU) $(AS_NEON) --MD $(patsubst %.o,%.d,$@) $(INCLUDES) -I $(BOOTDIR) -I $(INCLUDE_DIR) -I $(DDR_COMMON) -I $(DDR_SOC) $< -o $@ --defsym $(AArch32_64)=0 --defsym $(BOOT_DEF)=0 --defsym $(TOOL_DEF)=0
+	$(AS)  -g $(CPU) $(AS_NEON) --MD $(patsubst %.o,%.d,$@) $(INCLUDES) -I $(BOOTDIR) -I $(INCLUDE_DIR) -I $(DDR_COMMON) -I $(DDR_SOC) $< -o $@ --defsym $(AArch32_64)=0 --defsym $(BOOT_DEF)=0 --defsym $(TOOL_DEF)=0 --defsym STACK_BYTES=$(STACK_BYTES)
 
 $(OBJECT_DIR)/%.o:%.c
 	@if [ ! -e `dirname $@` ]; then mkdir -p `dirname $@`; fi

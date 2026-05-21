@@ -28,7 +28,7 @@ const char *const AllHelpMess[ALL_HELP_MESS_LINE] = {
 				" EM_E           erase program to eMMC",
 				"",
 #endif /* EMMC == 1 */
-#if INTERNAL_MEMORY_ONLY == 0
+#if ((INTERNAL_MEMORY_ONLY == 0) && (DDR_PARAM_LOAD == 1))
 				"        Load DDR parameters",
 				" DDRP           Store DDR parameters into internal SRAM",
 				"",
@@ -37,7 +37,7 @@ const char *const AllHelpMess[ALL_HELP_MESS_LINE] = {
 				" DDR_RB [sadr] [eadr] {loop}        Random data write-then-read checking of DDR",
 				" DDR_FB [sadr] [eadr] [data] {loop} Fixed data write-then-read checking of DDR",
 				"",
-#endif /* INTERNAL_MEMORY_ONLY == 0 */
+#endif /* ((INTERNAL_MEMORY_ONLY == 0) && (DDR_PARAM_LOAD == 1)) */
 				" SUP            Scif speed UP (Change to speed up baud rate setting)",
 				" SUD            Scif speed DOWN (Change to speed down baud rate setting)",
 				" RESET          Perform RESET of the CPU",
