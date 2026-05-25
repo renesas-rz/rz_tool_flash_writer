@@ -61,49 +61,27 @@
     ((uint32_t)(p)[0])       | \
     ((uint32_t)(p)[1] << 8) )
 
-/* Runtime parameter arrays */
-extern char ddr_version_str_rt[DDR_VERSION_STR];
-extern uint32_t param_setup_mc_rt[PARAM_SETUP_MC_MAX][2];
-extern uint32_t param_phyinit_c_rt[PARAM_PHYINIT_C_MAX][2];
-extern uint16_t param_phyinit_1d_dat1_rt[PARAM_PHYINIT_1D_DAT1_MAX];
-extern uint16_t param_phyinit_2d_dat1_rt[PARAM_PHYINIT_2D_DAT1_MAX];
-extern uint32_t param_phyinit_i_rt[PARAM_PHYINIT_I_MAX][2];
-extern uint16_t param_phyinit_1d_dat0_rt[PARAM_PHYINIT_1D_DAT0_MAX];
-extern uint16_t param_phyinit_2d_dat0_rt[PARAM_PHYINIT_2D_DAT0_MAX];
-extern uint32_t param_phyinit_swizzle_rt[PARAM_PHYINIT_SWIZZLE_MAX][2];
+extern char ddr_version_str[DDR_VERSION_STR];
+extern uint32_t param_setup_mc[PARAM_SETUP_MC_MAX][2];
+extern uint32_t param_phyinit_c[PARAM_PHYINIT_C_MAX][2];
+extern uint16_t param_phyinit_1d_dat1[PARAM_PHYINIT_1D_DAT1_MAX];
+extern uint16_t param_phyinit_2d_dat1[PARAM_PHYINIT_2D_DAT1_MAX];
+extern uint32_t param_phyinit_i[PARAM_PHYINIT_I_MAX][2];
+extern uint16_t param_phyinit_1d_dat0[PARAM_PHYINIT_1D_DAT0_MAX];
+extern uint16_t param_phyinit_2d_dat0[PARAM_PHYINIT_2D_DAT0_MAX];
+extern uint32_t param_phyinit_swizzle[PARAM_PHYINIT_SWIZZLE_MAX][2];
 
-/* Runtime parameter size */
-extern uint32_t param_setup_mc_size_rt;
-extern uint32_t param_phyinit_c_size_rt;
-extern uint32_t param_phyinit_1d_dat1_size_rt;
-extern uint32_t param_phyinit_2d_dat1_size_rt;
-extern uint32_t param_phyinit_i_size_rt;
-extern uint32_t param_phyinit_1d_dat0_size_rt;
-extern uint32_t param_phyinit_2d_dat0_size_rt;
-extern uint32_t param_phyinit_swizzle_size_rt;
+extern uint32_t param_setup_mc_size;
+extern uint32_t param_phyinit_c_size;
+extern uint32_t param_phyinit_1d_dat1_size;
+extern uint32_t param_phyinit_2d_dat1_size;
+extern uint32_t param_phyinit_i_size;
+extern uint32_t param_phyinit_1d_dat0_size;
+extern uint32_t param_phyinit_2d_dat0_size;
+extern uint32_t param_phyinit_swizzle_size;
 
-/* Default parameter arrays */
-extern const char ddr_version_str[];
-extern const uint32_t param_phyinit_swizzle[][2];
-extern const uint32_t param_phyinit_c[][2];
-extern const uint32_t param_phyinit_i[][2];
-extern const uint16_t param_phyinit_1d_dat0[];
-extern const uint16_t param_phyinit_2d_dat0[];
-extern const uint16_t param_phyinit_1d_dat1[];
-extern const uint16_t param_phyinit_2d_dat1[];
-extern const uint32_t param_setup_mc[][2];
-
-/* Default parameter size */
-extern const uint32_t param_phyinit_swizzle_size;
-extern const uint32_t param_phyinit_c_size;
-extern const uint32_t param_phyinit_i_size;
-extern const uint32_t param_phyinit_1d_dat0_size;
-extern const uint32_t param_phyinit_2d_dat0_size;
-extern const uint32_t param_phyinit_1d_dat1_size;
-extern const uint32_t param_phyinit_2d_dat1_size;
-extern const uint32_t param_setup_mc_size;
-
-void ddr_load_default_param(void);
+/* Status of DDR Parameters initialized or not */
+extern uint8_t f_ddr_param_initialized;
 #endif
 
 extern uint32_t ddr_csr_table[RET_CSR_SIZE];

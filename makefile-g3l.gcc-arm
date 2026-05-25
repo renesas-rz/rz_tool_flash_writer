@@ -178,13 +178,13 @@ SRC_FILE += \
 	ddrcheck.c				\
 	soc/g3l/driver/ddr_stub.c		\
 	soc/g3l/ddr/ddr_misc.c			\
-	soc/g3l/ddr/ddr_retcsr_lpddr4.c		\
-	soc/$(DDR_PARAM_PATH)/ddr_param_def_lpddr4.c
+	soc/g3l/ddr/ddr_retcsr_lpddr4.c
 
 ifneq ("$(DDR_PARAM_LOAD)", "ENABLE")
 SRC_FILE += \
 	soc/g3l/ddr/ddr_setup_lpddr4.c	\
-	soc/g3l/ddr/ddr.c
+	soc/g3l/ddr/ddr.c		\
+	soc/$(DDR_PARAM_PATH)/ddr_param_def_lpddr4.c
 else
 SRC_FILE += \
 	soc/g3l/ddr/ddr_setup_lpddr4_en_ddrp.c	\

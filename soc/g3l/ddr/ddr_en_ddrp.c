@@ -12,31 +12,11 @@
 #include <vbatt_regs.h>
 #include <cpg.h>
 #include <ddr.h>
-#include <string.h>
 
 #include "ddr_regs.h"
 #include "ddr_private.h"
 
 #define MCAR_CTRL		(0x400)
-
-char ddr_version_str_rt[DDR_VERSION_STR];
-uint32_t param_setup_mc_rt[PARAM_SETUP_MC_MAX][2];
-uint32_t param_phyinit_c_rt[PARAM_PHYINIT_C_MAX][2];
-uint16_t param_phyinit_1d_dat1_rt[PARAM_PHYINIT_1D_DAT1_MAX];
-uint16_t param_phyinit_2d_dat1_rt[PARAM_PHYINIT_2D_DAT1_MAX];
-uint32_t param_phyinit_i_rt[PARAM_PHYINIT_I_MAX][2];
-uint16_t param_phyinit_1d_dat0_rt[PARAM_PHYINIT_1D_DAT0_MAX];
-uint16_t param_phyinit_2d_dat0_rt[PARAM_PHYINIT_2D_DAT0_MAX];
-uint32_t param_phyinit_swizzle_rt[PARAM_PHYINIT_SWIZZLE_MAX][2];
-
-uint32_t param_setup_mc_size_rt;
-uint32_t param_phyinit_c_size_rt;
-uint32_t param_phyinit_1d_dat1_size_rt;
-uint32_t param_phyinit_2d_dat1_size_rt;
-uint32_t param_phyinit_i_size_rt;
-uint32_t param_phyinit_1d_dat0_size_rt;
-uint32_t param_phyinit_2d_dat0_size_rt;
-uint32_t param_phyinit_swizzle_size_rt;
 
 static void phyinit_c(void);
 static void phyinit_d2h_1d(void);
@@ -50,31 +30,31 @@ static void	restore_retcsr(void);
 	static void prog_all0(void);
 #endif
 
-void ddr_load_default_param(void)
-{
-	param_setup_mc_size_rt = param_setup_mc_size;
-	param_phyinit_c_size_rt = param_phyinit_c_size;
-	param_phyinit_1d_dat1_size_rt = param_phyinit_1d_dat1_size;
-	param_phyinit_2d_dat1_size_rt = param_phyinit_2d_dat1_size;
-	param_phyinit_i_size_rt = param_phyinit_i_size;
-	param_phyinit_1d_dat0_size_rt = param_phyinit_1d_dat0_size;
-	param_phyinit_2d_dat0_size_rt = param_phyinit_2d_dat0_size;
-	param_phyinit_swizzle_size_rt = param_phyinit_swizzle_size;
+char ddr_version_str[DDR_VERSION_STR];
+uint32_t param_setup_mc[PARAM_SETUP_MC_MAX][2];
+uint32_t param_phyinit_c[PARAM_PHYINIT_C_MAX][2];
+uint16_t param_phyinit_1d_dat1[PARAM_PHYINIT_1D_DAT1_MAX];
+uint16_t param_phyinit_2d_dat1[PARAM_PHYINIT_2D_DAT1_MAX];
+uint32_t param_phyinit_i[PARAM_PHYINIT_I_MAX][2];
+uint16_t param_phyinit_1d_dat0[PARAM_PHYINIT_1D_DAT0_MAX];
+uint16_t param_phyinit_2d_dat0[PARAM_PHYINIT_2D_DAT0_MAX];
+uint32_t param_phyinit_swizzle[PARAM_PHYINIT_SWIZZLE_MAX][2];
 
-	memcpy(ddr_version_str_rt, ddr_version_str, DDR_VERSION_STR);
-	memcpy(param_setup_mc_rt, param_setup_mc, param_setup_mc_size * sizeof(param_setup_mc[0]));
-	memcpy(param_phyinit_c_rt, param_phyinit_c, param_phyinit_c_size * sizeof(param_phyinit_c[0]));
-	memcpy(param_phyinit_1d_dat1_rt, param_phyinit_1d_dat1, param_phyinit_1d_dat1_size * sizeof(param_phyinit_1d_dat1[0]));
-	memcpy(param_phyinit_2d_dat1_rt, param_phyinit_2d_dat1, param_phyinit_2d_dat1_size * sizeof(param_phyinit_2d_dat1[0]));
-	memcpy(param_phyinit_i_rt, param_phyinit_i, param_phyinit_i_size * sizeof(param_phyinit_i[0]));
-	memcpy(param_phyinit_1d_dat0_rt, param_phyinit_1d_dat0, param_phyinit_1d_dat0_size * sizeof(param_phyinit_1d_dat0[0]));
-	memcpy(param_phyinit_2d_dat0_rt, param_phyinit_2d_dat0, param_phyinit_2d_dat0_size * sizeof(param_phyinit_2d_dat0[0]));
-	memcpy(param_phyinit_swizzle_rt, param_phyinit_swizzle, param_phyinit_swizzle_size * sizeof(param_phyinit_swizzle[0]));
-}
+uint32_t param_setup_mc_size;
+uint32_t param_phyinit_c_size;
+uint32_t param_phyinit_1d_dat1_size;
+uint32_t param_phyinit_2d_dat1_size;
+uint32_t param_phyinit_i_size;
+uint32_t param_phyinit_1d_dat0_size;
+uint32_t param_phyinit_2d_dat0_size;
+uint32_t param_phyinit_swizzle_size;
+
+/* Status of DDR Parameters initialized or not */
+uint8_t f_ddr_param_initialized = 0;
 
 void ddr_setup(void)
 {
-	INFO("DDR: Setup (Rev. %s)\r\n", ddr_version_str_rt);
+	INFO("DDR: Setup (Rev. %s)\r\n", ddr_version_str);
 
 #ifdef DDR_DEBUG
 	INFO("cpg_ddr_part1\r\n");
@@ -175,7 +155,7 @@ void ddr_retention_entry(void)
 
 void ddr_retention_exit(void)
 {
-	INFO("DDR: Retention Exit (Rev. %s)\n", ddr_version_str_rt);
+	INFO("DDR: Retention Exit (Rev. %s)\n", ddr_version_str);
 
 
 	/* 13.1 Power up performed by PMIC */

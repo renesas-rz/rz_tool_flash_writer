@@ -14,6 +14,7 @@
 #include "dgmodul1.h"
 #include "bit.h"
 #include "xspiflash1drv.h"
+#include "ddr.h"
 
 uint32_t	gUserPrgStartAdd;
 uint32_t	gUserPrgSize;
@@ -456,6 +457,14 @@ static void XLoadSpiflash0_2(uint32_t mode)
 	uint32_t	PrgSpiStartAdd, PrgSpiEndAdd, PrgSpiSize, UserPrgStatAdd;
 	uint32_t	workAdd_Min, workAdd_Max;
 	uintptr_t	Load_workStartAdd;
+
+#if ((INTERNAL_MEMORY_ONLY == 0) && (DDR_PARAM_LOAD == 1))
+	if (f_ddr_param_initialized == 0)
+	{
+		PutStr("DDR not initialized, please send DDR parameters via \'DDRP\' command", 1);
+		return;
+	}
+#endif /* ((INTERNAL_MEMORY_ONLY == 0) && (DDR_PARAM_LOAD == 1)) */
 
 	PutStr("===== Qspi writing of "SOC_NAME" Board Command =============",1);
 	PutStr("Load Program to Spiflash",1);

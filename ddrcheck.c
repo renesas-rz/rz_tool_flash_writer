@@ -464,24 +464,24 @@ void dgDdrLoadParam(void)
 	}
 
 	/* Extract the last from a binary file to determine the array size */
-	param_setup_mc_size_rt = READ_LE32(&ddr_param_buf[fileSize - 32]);
-	param_phyinit_c_size_rt = READ_LE32(&ddr_param_buf[fileSize - 28]);
-	param_phyinit_1d_dat1_size_rt = READ_LE32(&ddr_param_buf[fileSize - 24]);
-	param_phyinit_2d_dat1_size_rt = READ_LE32(&ddr_param_buf[fileSize - 20]);
-	param_phyinit_i_size_rt = READ_LE32(&ddr_param_buf[fileSize - 16]);
-	param_phyinit_1d_dat0_size_rt = READ_LE32(&ddr_param_buf[fileSize - 12]);
-	param_phyinit_2d_dat0_size_rt = READ_LE32(&ddr_param_buf[fileSize - 8]);
-	param_phyinit_swizzle_size_rt = READ_LE32(&ddr_param_buf[fileSize - 4]);
+	param_setup_mc_size = READ_LE32(&ddr_param_buf[fileSize - 32]);
+	param_phyinit_c_size = READ_LE32(&ddr_param_buf[fileSize - 28]);
+	param_phyinit_1d_dat1_size = READ_LE32(&ddr_param_buf[fileSize - 24]);
+	param_phyinit_2d_dat1_size = READ_LE32(&ddr_param_buf[fileSize - 20]);
+	param_phyinit_i_size = READ_LE32(&ddr_param_buf[fileSize - 16]);
+	param_phyinit_1d_dat0_size = READ_LE32(&ddr_param_buf[fileSize - 12]);
+	param_phyinit_2d_dat0_size = READ_LE32(&ddr_param_buf[fileSize - 8]);
+	param_phyinit_swizzle_size = READ_LE32(&ddr_param_buf[fileSize - 4]);
 
 	/* Check if the received size matches the value extracted from the binary */
-	fileSizeCount = (param_setup_mc_size_rt * 2 + \
-					param_phyinit_c_size_rt * 2 + \
-					param_phyinit_i_size_rt * 2 + \
-					param_phyinit_swizzle_size_rt * 2 + 10) * 4 + \
-					ALIGN8(param_phyinit_1d_dat1_size_rt * 2) + \
-					ALIGN8(param_phyinit_2d_dat1_size_rt * 2) + \
-					ALIGN8(param_phyinit_1d_dat0_size_rt * 2) + \
-					ALIGN8(param_phyinit_2d_dat0_size_rt * 2);
+	fileSizeCount = (param_setup_mc_size * 2 + \
+					param_phyinit_c_size * 2 + \
+					param_phyinit_i_size * 2 + \
+					param_phyinit_swizzle_size * 2 + 10) * 4 + \
+					ALIGN8(param_phyinit_1d_dat1_size * 2) + \
+					ALIGN8(param_phyinit_2d_dat1_size * 2) + \
+					ALIGN8(param_phyinit_1d_dat0_size * 2) + \
+					ALIGN8(param_phyinit_2d_dat0_size * 2);
 	if (fileSizeCount != fileSize)
 	{
 		PutStr("BIN data structure is INVALID with size(byte) : H\'", 0);
@@ -491,19 +491,20 @@ void dgDdrLoadParam(void)
 	}
 
 	/* Load ddr parameters into array local */
-	fill_data_char_arr1D(ddr_version_str_rt, ddr_param_buf, 8, &offset);
-	fill_data_arr2D(param_setup_mc_rt, ddr_param_buf, param_setup_mc_size_rt, &offset);
-	fill_data_arr2D(param_phyinit_c_rt, ddr_param_buf, param_phyinit_c_size_rt, &offset);
-	fill_data_arr1D(param_phyinit_1d_dat1_rt, ddr_param_buf, param_phyinit_1d_dat1_size_rt, &offset);
-	fill_data_arr1D(param_phyinit_2d_dat1_rt, ddr_param_buf, param_phyinit_2d_dat1_size_rt, &offset);
-	fill_data_arr2D(param_phyinit_i_rt, ddr_param_buf, param_phyinit_i_size_rt, &offset);
-	fill_data_arr1D(param_phyinit_1d_dat0_rt, ddr_param_buf, param_phyinit_1d_dat0_size_rt, &offset);
-	fill_data_arr1D(param_phyinit_2d_dat0_rt, ddr_param_buf, param_phyinit_2d_dat0_size_rt, &offset);
-	fill_data_arr2D(param_phyinit_swizzle_rt, ddr_param_buf, param_phyinit_swizzle_size_rt, &offset);
+	fill_data_char_arr1D(ddr_version_str, ddr_param_buf, 8, &offset);
+	fill_data_arr2D(param_setup_mc, ddr_param_buf, param_setup_mc_size, &offset);
+	fill_data_arr2D(param_phyinit_c, ddr_param_buf, param_phyinit_c_size, &offset);
+	fill_data_arr1D(param_phyinit_1d_dat1, ddr_param_buf, param_phyinit_1d_dat1_size, &offset);
+	fill_data_arr1D(param_phyinit_2d_dat1, ddr_param_buf, param_phyinit_2d_dat1_size, &offset);
+	fill_data_arr2D(param_phyinit_i, ddr_param_buf, param_phyinit_i_size, &offset);
+	fill_data_arr1D(param_phyinit_1d_dat0, ddr_param_buf, param_phyinit_1d_dat0_size, &offset);
+	fill_data_arr1D(param_phyinit_2d_dat0, ddr_param_buf, param_phyinit_2d_dat0_size, &offset);
+	fill_data_arr2D(param_phyinit_swizzle, ddr_param_buf, param_phyinit_swizzle_size, &offset);
 
 	PutStr("DDR parameters loaded", 1);
 	DDR_SETUP();
 	PutStr("DDR Setup completed", 1);
+	f_ddr_param_initialized = 1;
 }
 #endif
 
@@ -511,6 +512,14 @@ void dgDdrTest(void)
 {
 	uint32_t readData, chCnt;
 	char	str[16];
+
+#if ((INTERNAL_MEMORY_ONLY == 0) && (DDR_PARAM_LOAD == 1))
+	if (f_ddr_param_initialized == 0)
+	{
+		PutStr("DDR not initialized, please send DDR parameters via \'DDRP\' command", 1);
+		return;
+	}
+#endif
 
 	PutStr("=== DDR R/W CHECK ====",1);
 	PutStr("=== Memory map "SOC_NAME" ===",1);
@@ -561,6 +570,12 @@ void dgDdrSimple(void)
 	uint32_t setPara, l, loop;
 	char decRtn;
 	char str[16];
+
+	if (f_ddr_param_initialized == 0)
+	{
+		PutStr("DDR not initialized, please send DDR parameters via \'DDRP\' command", 1);
+		return;
+	}
 
 	startAdd = endAdd = 0x0;
 	decRtn = DecodeForm04(&startAdd, &endAdd, &loop, &setPara);
@@ -689,6 +704,12 @@ void dgDdrRandb(void)
 	char decRtn;
 	char str[16];
 
+	if (f_ddr_param_initialized == 0)
+	{
+		PutStr("DDR not initialized, please send DDR parameters via \'DDRP\' command", 1);
+		return;
+	}
+
 	startAdd = endAdd = 0x0;
 	decRtn = DecodeForm04(&startAdd, &endAdd, &loop, &setPara);
 	if ((decRtn == 1) || (setPara < 2))
@@ -739,6 +760,12 @@ void dgDdrFixedb(void)
 	int i;
 	char decRtn;
 	char str[16];
+
+	if (f_ddr_param_initialized == 0)
+	{
+		PutStr("DDR not initialized, please send DDR parameters via \'DDRP\' command", 1);
+		return;
+	}
 
 	startAdd = endAdd = val = 0x0;
 	decRtn = DecodeForm05(&startAdd, &endAdd, &val, &loop, &setPara);

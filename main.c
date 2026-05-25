@@ -63,10 +63,7 @@ void Main(void)
 	InitScif();
 #endif
 
-#if (INTERNAL_MEMORY_ONLY == 0)
-#if (DDR_PARAM_LOAD == 1)
-	ddr_load_default_param();
-#endif
+#if ((INTERNAL_MEMORY_ONLY == 0) && (DDR_PARAM_LOAD == 0))
 	DDR_SETUP();
 #endif
 	gUDump[0] =  gUMem[0] =  0;

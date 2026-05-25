@@ -23,8 +23,8 @@ void setup_mc(void)
 {
 	size_t i;
 
-	for (i = 0; i < param_setup_mc_size_rt; i++)
-		DDRTOP_mc_apb_wr(param_setup_mc_rt[i][0], param_setup_mc_rt[i][1]);
+	for (i = 0; i < param_setup_mc_size; i++)
+		DDRTOP_mc_apb_wr(param_setup_mc[i][0], param_setup_mc[i][1]);
 }
 
 void update_mc(void)
@@ -37,8 +37,8 @@ void phyinit_configuration(void)
 {
 	size_t i;
 
-	for (i = 0; i < param_phyinit_c_size_rt; i++) {
-		dwc_ddrphy_apb_wr(param_phyinit_c_rt[i][0], param_phyinit_c_rt[i][1]);
+	for (i = 0; i < param_phyinit_c_size; i++) {
+		dwc_ddrphy_apb_wr(param_phyinit_c[i][0], param_phyinit_c[i][1]);
 	}
 }
 
@@ -46,8 +46,8 @@ void phyinit_pin_swizzling(void)
 {
 	size_t i;
 
-	for (i = 0; i < param_phyinit_swizzle_size_rt; i++) {
-		dwc_ddrphy_apb_wr(param_phyinit_swizzle_rt[i][0], param_phyinit_swizzle_rt[i][1]);
+	for (i = 0; i < param_phyinit_swizzle_size; i++) {
+		dwc_ddrphy_apb_wr(param_phyinit_swizzle[i][0], param_phyinit_swizzle[i][1]);
 	}
 }
 
@@ -57,19 +57,19 @@ void phyinit_load_1d_image(void)
 	dwc_ddrphy_apb_wr(0x00058060, 0x00000002);
 	dwc_ddrphy_apb_wr(0x0006E000, 0x00000000);
 
-	for (i = 0; i < param_phyinit_1d_dat0_size_rt; i++) {
-		dwc_ddrphy_apb_wr((uint32_t)(0x60000+i), (uint32_t)(param_phyinit_1d_dat0_rt[i]));
+	for (i = 0; i < param_phyinit_1d_dat0_size; i++) {
+		dwc_ddrphy_apb_wr((uint32_t)(0x60000+i), (uint32_t)(param_phyinit_1d_dat0[i]));
 	}
 
-	for (i = param_phyinit_1d_dat0_size_rt; i < 0x4000; i++) {
+	for (i = param_phyinit_1d_dat0_size; i < 0x4000; i++) {
 		dwc_ddrphy_apb_wr((uint32_t)(0x60000+i), (uint32_t)(0));
 	}
 
 	dwc_ddrphy_apb_wr(0x0006E000, 0x00000001);
 
 	dwc_ddrphy_apb_wr(0x0006E000, 0x0);
-	for (i = 0; i < param_phyinit_1d_dat1_size_rt; i++) {
-		dwc_ddrphy_apb_wr(0x00064000+i, (uint32_t)param_phyinit_1d_dat1_rt[i]);
+	for (i = 0; i < param_phyinit_1d_dat1_size; i++) {
+		dwc_ddrphy_apb_wr(0x00064000+i, (uint32_t)param_phyinit_1d_dat1[i]);
 	}
 
 	dwc_ddrphy_apb_wr(0x0006E000, 0x1);
@@ -241,19 +241,19 @@ void phyinit_load_2d_image(void)
 	size_t i;
 	dwc_ddrphy_apb_wr(0x0006E000, 0x00000000);
 
-	for (i = 0; i < param_phyinit_2d_dat0_size_rt; i++) {
-		dwc_ddrphy_apb_wr(0x00060000 + i, (uint32_t)param_phyinit_2d_dat0_rt[i]);
+	for (i = 0; i < param_phyinit_2d_dat0_size; i++) {
+		dwc_ddrphy_apb_wr(0x00060000 + i, (uint32_t)param_phyinit_2d_dat0[i]);
 	}
 
-	for (i = param_phyinit_2d_dat0_size_rt; i < 0x4000; i++) {
+	for (i = param_phyinit_2d_dat0_size; i < 0x4000; i++) {
 		dwc_ddrphy_apb_wr(0x00060000 + i, 0x0);
 	}
 
 	dwc_ddrphy_apb_wr(0x0006E000, 0x00000001);
 
 	dwc_ddrphy_apb_wr(0x0006E000, 0x0);
-	for (i = 0; i < param_phyinit_2d_dat1_size_rt; i++) {
-		dwc_ddrphy_apb_wr(0x00064000 + i, (uint32_t)param_phyinit_2d_dat1_rt[i]);
+	for (i = 0; i < param_phyinit_2d_dat1_size; i++) {
+		dwc_ddrphy_apb_wr(0x00064000 + i, (uint32_t)param_phyinit_2d_dat1[i]);
 	}
 
 	dwc_ddrphy_apb_wr(0x0006E000, 0x1);
@@ -284,8 +284,8 @@ void phyinit_load_eng_image(void)
 {
 	size_t i;
 
-	for (i = 0; i < param_phyinit_i_size_rt; i++) {
-		dwc_ddrphy_apb_wr(param_phyinit_i_rt[i][0], param_phyinit_i_rt[i][1]);
+	for (i = 0; i < param_phyinit_i_size; i++) {
+		dwc_ddrphy_apb_wr(param_phyinit_i[i][0], param_phyinit_i[i][1]);
 	}
 }
 

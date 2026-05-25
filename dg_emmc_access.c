@@ -20,6 +20,8 @@
 #include "devdrv.h"
 #include "memory_pool.h"
 
+#include "ddr.h"
+
 #define	SIZE2SECTOR(x)			( (x) >> 9 )	/* 512Byte		*/
 
 #define	EMMC_MAX_SIZE			8		/* 8 Gbyte		*/
@@ -203,6 +205,14 @@ void dg_emmc_write(EMMC_WRITE_COMMAND wc)
 	int8_t motLoad = 1;
 	int8_t oldPartitionConfig;
 	char str[16];
+
+#if ((INTERNAL_MEMORY_ONLY == 0) && (DDR_PARAM_LOAD == 1))
+	if (f_ddr_param_initialized == 0)
+	{
+		PutStr("DDR not initialized, please send DDR parameters via \'DDRP\' command", 1);
+		return;
+	}
+#endif /* ((INTERNAL_MEMORY_ONLY == 0) && (DDR_PARAM_LOAD == 1)) */
 
 	static const int8_t startMessage[][32] = {
 		"EM_W Start --------------",

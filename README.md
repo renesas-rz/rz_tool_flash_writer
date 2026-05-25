@@ -172,6 +172,10 @@ The following table shows the command list.
 
 #### 3.3.1. Write to the S-record format images to the Serial Flash
 
+> [!NOTE]
+>
+> In case `DDR_PARAM_LOAD` is enabled (refer to [4.3. Build the RZ/G3L DDR Tools](#43-build-the-rzg3l-ddr-tools)). Please make sure the DDR parameters are loaded successfully (refer to [3.3.9. Store DDR parameters into internal SRAM](#339-store-ddr-parameters-into-internal-sram)).
+
 This command writes the S-record format image to Serial Flash.
 
 ##### Example of writing data for the Serial Flash boot
@@ -352,6 +356,10 @@ Please note that for eMMC booting, the following EXT_CSD registers need to be mo
 
 #### 3.3.7. Write to the S-record format images to the eMMC
 
+> [!NOTE]
+>
+> In case `DDR_PARAM_LOAD` is enabled (refer to [4.3. Build the RZ/G3L DDR Tools](#43-build-the-rzg3l-ddr-tools)). Please make sure the DDR parameters are loaded successfully (refer to [3.3.9. Store DDR parameters into internal SRAM](#339-store-ddr-parameters-into-internal-sram)).
+
 This command writes the S-record format image to any partition of the eMMC.
 
 ##### Example of writing data for the eMMC boot
@@ -420,13 +428,11 @@ EM_E Complete!
 
 Selected partition has been erased.
 
-#### 3.3.9. Store DDR parameters into internal SRAM and run Eye Opening Tool
+#### 3.3.9. Store DDR parameters into internal SRAM
 
 > [!NOTE]
 >
-> When loading the Flash Writer, the default DDR parameters are also loaded first.
->
-> To use this feature to override the DDR parameters. Please enable `DDR_PARAM_LOADED` when building the RZ/G3L DDR Tools. Refer to [4.3. Build the RZ/G3L DDR Tools](#43-build-the-rzg3l-ddr-tools).
+> To use this feature. Please enable `DDR_PARAM_LOAD` when building the RZ/G3L DDR Tools (refer to [4.3. Build the RZ/G3L DDR Tools](#43-build-the-rzg3l-ddr-tools)).
 
 This command stores DDR parameters into internal SRAM and runs Eye Opening Tool
 
@@ -445,7 +451,7 @@ Input file size with 0x11E28 = 73,256 bytes
 Please Input File size(byte) : H'11E28
 Please send ! (binary)
 ```
-Send DDR parameter file (binary) from PC. You can use this sample file "ddr_param_def_lpddr4.bin" (refer [4.4. Generate DDR parameters (*.bin)](#44-generate-ddr-parameters-bin)). After the DDR parameters are loaded, Eye Opening Tool runs automatically. The raw test result like below is output on the terminal.
+Send DDR parameter file (binary) from PC. You can use this sample file "ddr_param_def_lpddr4.bin" (refer to [4.4. Generate DDR parameters (*.bin)](#44-generate-ddr-parameters-bin)). After the DDR parameters are loaded, Eye Opening Tool runs automatically. The raw test result like below is output on the terminal.
 
 ```text
 >DDRP
@@ -481,7 +487,8 @@ DDR Setup completed
 #### 3.3.10. Simple write-then-read checking of DDR
 
 > [!NOTE]
-> To use this feature. Please enable `DDR_PARAM_LOADED` when building the RZ/G3L DDR Tools. Refer to [4.3. Build the RZ/G3L DDR Tools](#43-build-the-rzg3l-ddr-tools).
+>
+> To use this feature. Please enable `DDR_PARAM_LOAD` when building the RZ/G3L DDR Tools (refer to [4.3. Build the RZ/G3L DDR Tools](#43-build-the-rzg3l-ddr-tools)) and make sure the DDR parameters are loaded successfully (refer to [3.3.9. Store DDR parameters into internal SRAM](#339-store-ddr-parameters-into-internal-sram)).
 
 This command writes fixed patterns to DDR and verifies them.
 
@@ -513,7 +520,8 @@ CHECK RESULT ---->OK
 #### 3.3.11. Random data write-then-read checking of DDR
 
 > [!NOTE]
-> To use this feature. Please enable `DDR_PARAM_LOADED` when building the RZ/G3L DDR Tools. Refer to [4.3. Build the RZ/G3L DDR Tools](#43-build-the-rzg3l-ddr-tools).
+>
+> To use this feature. Please enable `DDR_PARAM_LOAD` when building the RZ/G3L DDR Tools (refer to [4.3. Build the RZ/G3L DDR Tools](#43-build-the-rzg3l-ddr-tools)) and make sure the DDR parameters are loaded successfully (refer to [3.3.9. Store DDR parameters into internal SRAM](#339-store-ddr-parameters-into-internal-sram)).
 
 This command writes random data from SRAM to DDR, then reads it back and verifies the result.
 
@@ -537,7 +545,8 @@ CHECK RESULT ---->OK
 #### 3.3.12. Fixed data write-then-read checking of DDR
 
 > [!NOTE]
-> To use this feature. Please enable `DDR_PARAM_LOADED` when building the RZ/G3L DDR Tools. Refer to [4.3. Build the RZ/G3L DDR Tools](#43-build-the-rzg3l-ddr-tools).
+>
+> To use this feature. Please enable `DDR_PARAM_LOAD` when building the RZ/G3L DDR Tools (refer to [4.3. Build the RZ/G3L DDR Tools](#43-build-the-rzg3l-ddr-tools)) and make sure the DDR parameters are loaded successfully (refer to [3.3.9. Store DDR parameters into internal SRAM](#339-store-ddr-parameters-into-internal-sram)).
 
 This command writes a fixed value (e.g., 0xA5) to DDR memory, then reads it back and verifies the result.
 
