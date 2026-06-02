@@ -65,6 +65,9 @@ void Main(void)
 
 	udelay(100);
 
+#if ((INTERNAL_MEMORY_ONLY == 0) && (DDR_PARAM_LOAD == 0))
+	ddr_setup();
+#endif
 	gUDump[0] =  gUMem[0] =  0;
 	gUDump[1] =  gUMem[1] =  255;
 

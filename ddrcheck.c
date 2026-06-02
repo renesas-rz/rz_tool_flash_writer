@@ -10,10 +10,15 @@
 #include "ramckmdl.h"
 #include "devdrv.h"
 #include "ddrcheck.h"
+
+#if (DDR_PARAM_LOAD == 1)
 #include "ddr.h"
 #include "ddr_write_pattern.h"
 
 static uint8_t f_ddr_first_init;
+#else
+#pragma GCC optimize ("Og")
+#endif
 
 uintptr_t	gErrDdrAdd;
 uint32_t	gErrDdrData,gTrueDdrData;
@@ -371,11 +376,13 @@ static int32_t TPRAMCK( uint8_t *startAddr, uint8_t *endAddr )
 
 void dgDdrTest(void)
 {
+#if ((INTERNAL_MEMORY_ONLY == 0) && (DDR_PARAM_LOAD == 1))
 	if (f_ddr_param_initialized == 0)
 	{
 		PutStr("DDR not initialized, please send DDR parameters via \'DDRP\' command", 1);
 		return;
 	}
+#endif
 
 	uint32_t readData;
 	PutStr("=== DDR R/W CHECK ====",1);
@@ -435,6 +442,7 @@ void dgDdrTest(void)
 #endif
 }
 
+#if (DDR_PARAM_LOAD == 1)
 static void fill_data_arr1D(uint32_t *dest, uint8_t *src, uint16_t size, uint16_t *offset){
     for (int i = 0; i < size; i++) {
 		dest[i] = 	(uint32_t)src[*offset] |
@@ -858,3 +866,57 @@ void dgDdrEyeOpenTool(void)
 
 	ddr_eye_open_tool(&ddr_eye_mem, &dmac_setting);
 }
+#else
+void dgRamTest(void)
+{
+	uint64_t ramck1st,ramck2nd;
+	uint32_t setPara;
+
+	char decRtn;
+	char str[10];
+
+	ramck1st=ramck2nd=0x0;
+	decRtn = DecodeForm5(&ramck1st,&ramck2nd,&setPara);
+	if (!(setPara&0x3))
+	{
+		PutStr("Syntax Error",1);	return;
+	}
+	else if (decRtn==1)
+	{
+		PutStr("Syntax Error",1);	return;
+	}
+	else if (decRtn==2)
+	{
+		PutStr("Address Size Error",1);	return;
+	}
+	else
+	{
+		PutStr("== RAM CHECK (Byte Access) ===",1);
+		PutStr("- Marching Data Check --------",1);
+		PutStr(" [ Write H'00               ]",1);
+		PutStr(" [ Check H'00 -> Write H'55 ]",1);
+		PutStr(" [ Check H'55 -> Write H'AA ]",1);
+		PutStr(" [ Check H'AA -> Write H'FF ]",1);
+		PutStr(" [ Check H'FF               ]",1);
+		PutStr("- Decoder Pattern Check ------",1);
+		PutStr(" [ Write H'00,H'01,H'02 ... ]",1);
+		PutStr(" [ Check H'00,H'01,H'02 ... ]",1);
+		PutStr("CHECK RESULT",0);
+	}
+	if (TPRAMCK( ((uint8_t *)ramck1st),((uint8_t *)(ramck1st+ramck2nd)) ) )
+	{
+		PutStr("---->NG",1);
+		Data2HexAscii_64(gSubErrAdd,str,CPU_BYTE_SIZE);
+		PutStr("ERROR ADDRESS:",0); PutStr(str,1);
+		Data2HexAscii_64(gSubErrData,str,CPU_BYTE_SIZE);
+		PutStr("ERROR DATA   :",0); PutStr(str,1);
+		Data2HexAscii_64(gSubTrueData,str,CPU_BYTE_SIZE);
+		PutStr("TRUE DATA    :",0); PutStr(str,1);
+		return;
+	}
+	else
+	{
+		PutStr("---->OK",1);
+	}
+}
+#endif

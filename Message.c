@@ -50,7 +50,7 @@ const char *const AllHelpMess[ALL_HELP_MESS_LINE] = {
 				" EM_E           erase program to eMMC",
 				"",
 #endif /* EMMC == 1 */
-#if INTERNAL_MEMORY_ONLY == 0
+#if ((INTERNAL_MEMORY_ONLY == 0) && (DDR_PARAM_LOAD == 1))
 				"        Load DDR parameters",
 				" DDRP           Store DDR parameters into internal SRAM",
 				"",
@@ -62,7 +62,7 @@ const char *const AllHelpMess[ALL_HELP_MESS_LINE] = {
 				"        DQ margin checker command",
 				" DQ             DQ to DQS timing margin check",
 				"",
-#endif /* INTERNAL_MEMORY_ONLY == 0 */
+#endif /* ((INTERNAL_MEMORY_ONLY == 0) && (DDR_PARAM_LOAD == 1)) */
 				" SUP            Scif speed UP (Change to speed up baud rate setting)",
 				" SUD            Scif speed DOWN (Change to speed down baud rate setting)",
 				" RESET          Perform RESET of the CPU",

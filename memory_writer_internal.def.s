@@ -64,7 +64,7 @@ SECTIONS
 		__STACKS_START__ = .;
 		KEEP(*(writer_stack))
 		__STACKS_END__ = .;
-	} > RAM
+	} > RAM2
 
 	__BSS_SIZE__ = SIZEOF(.bss);
 }

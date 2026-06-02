@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#if (DDR_PARAM_LOAD == 1)
 MEMORY {
 	RAM2 (rwxa): ORIGIN = 0x00010000, LENGTH = 0x00001E00
 #if (TRUSTED_BOARD_BOOT != 1)
@@ -14,6 +15,18 @@ MEMORY {
 #endif
 	RAM3 (rwxa): ORIGIN = 0x0002A000, LENGTH = 0x00006000
 }
+#else
+MEMORY {
+	RAM2 (rwxa): ORIGIN = 0x00010000, LENGTH = 0x00001E00
+#if (TRUSTED_BOARD_BOOT != 1)
+	CERT (rwxa): ORIGIN = 0x00011E00, LENGTH = 0x00000200
+	RAM  (rwxa): ORIGIN = 0x00012000, LENGTH = 0x0001D000
+#else
+	RAM  (rwxa): ORIGIN = 0x00013000, LENGTH = 0x0001C000
+#endif
+	RAM3 (rwxa): ORIGIN = 0x0002A000, LENGTH = 0x00001000
+}
+#endif
 
 SECTIONS
 {
@@ -64,7 +77,11 @@ SECTIONS
 		__STACKS_START__ = .;
 		KEEP(*(writer_stack))
 		__STACKS_END__ = .;
+#if (DDR_PARAM_LOAD == 1)
 	} > RAM3
+#else
+	} > RAM2
+#endif
 
 	__BSS_SIZE__ = SIZEOF(.bss);
 }

@@ -4,7 +4,4 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-/* Status of DDR Parameters initialized or not */
-extern uint8_t f_ddr_param_initialized;
-
 int32_t FillData32Bit( uint32_t *startAddr, uint32_t *endAddr, uint32_t writeData );

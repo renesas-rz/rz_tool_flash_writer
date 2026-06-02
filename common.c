@@ -9,9 +9,6 @@
 #include "common.h"
 #include "devdrv.h"
 
-/* Status of DDR Parameters initialized or not */
-uint8_t f_ddr_param_initialized = 0;
-
 __attribute__((aligned(32))) uint8_t	gCOMMAND_Area[COMMAND_BUFFER_SIZE];
 extern char gKeyBuf[64];
 
@@ -288,6 +285,7 @@ char Data2HexAscii(uint32_t data, char *buf, char size)
 	return(0);
 }
 
+#if (DDR_PARAM_LOAD == 1)
 char Data2DecAscii(uint32_t data, char *buf)
 {
 	char tmpBuf[16];
@@ -313,6 +311,7 @@ char Data2DecAscii(uint32_t data, char *buf)
 	buf[i] = 0;
 	return 0;
 }
+#endif
 
 char GetStrBlk(char *inStr, char *outStr, char *chPtr, char method)
 {
@@ -437,6 +436,7 @@ char DecodeHexAscStr(uintptr_t *para, char *buf)
 	return(0);	/* Normal End   */
 }
 
+#if (DDR_PARAM_LOAD == 1)
 /*********************************************************/
 /* Decimal Ascii str -> Deiciml                          */
 /*********************************************************/
@@ -457,6 +457,7 @@ char DecodeDecAscStr(uint32_t *data, char *buf)
 	}
 	return(0);	/* Normal End   */
 }
+#endif
 
 /*********************************************************/
 /* Hex Ascii str -> HexData (para1st, para2nd)           */
@@ -622,6 +623,7 @@ char DecodeForm03(uintptr_t *para1st, uintptr_t *para2nd, uintptr_t *para3rd, ui
 	return(0);
 }
 
+#if (DDR_PARAM_LOAD == 1)
 /***********************************************************/
 /*        Decode Format04                                  */
 /* COM <start Add> <End Add> [count]                       */
@@ -762,6 +764,7 @@ char DecodeForm05(uintptr_t *para1st, uintptr_t *para2nd, uintptr_t *para3rd, ui
 	} while(endCh);
 	return(0);
 }
+#endif
 
 /************************************************************************/
 /*NAME		: GetStr_MemEd						*/
@@ -865,6 +868,7 @@ char HexAscii2Data_64(unsigned char *buf, uintptr_t *data)
 	return(0);
 }
 
+#if (DDR_PARAM_LOAD == 1)
 char DecAscii2Data(unsigned char *buf, uint32_t *data)
 {
 	uint8_t  tmpData;
@@ -888,6 +892,7 @@ char DecAscii2Data(unsigned char *buf, uint32_t *data)
 	*data = val;
 	return(0);
 }
+#endif
 
 char Data2HexAscii_64(uintptr_t data, char *buf, char size)
 {

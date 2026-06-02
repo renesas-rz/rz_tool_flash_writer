@@ -7,6 +7,7 @@
 #ifndef __DDR_H__
 #define __DDR_H__
 
+#if (DDR_PARAM_LOAD == 1)
 #include <ddr_internal.h>
 #include "dmac.h"
 
@@ -33,7 +34,13 @@ typedef struct {
 	uint32_t		pattern_bytes;
 } open_eye_memory_t;
 
+/* Status of DDR Parameters initialized or not */
+extern uint8_t f_ddr_param_initialized;
+
 void ddr_setup(opt_delay_flg_t runOptDelay);
 void ddr_eye_open_tool(open_eye_memory_t *mem, dmac_setting_t *dmac);
+#else
+void ddr_setup(void);
+#endif
 
 #endif	/* __DDR_H__ */

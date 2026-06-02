@@ -6,6 +6,7 @@
 #ifndef __DDRCHECK_H__
 #define __DDRCHECK_H__
 
+#if (DDR_PARAM_LOAD == 1)
 #define MC_ODT_PINS_TBL_NUM 4
 #define MC_MR1_TBL_NUM      2
 #define MC_MR2_TBL_NUM      2
@@ -28,10 +29,13 @@
 #endif
 
 void dgDdrLoadParam(void);
-void dgDdrTest(void);
 void dgDdrSimple(void);
 void dgDdrRandb(void);
 void dgDdrFixedb(void);
 void dgDdrEyeOpenTool(void);
+#else
+void dgRamTest(void);
+#endif
+void dgDdrTest(void);
 
 #endif /*__DDRCHECK_H__*/

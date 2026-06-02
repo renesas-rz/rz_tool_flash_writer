@@ -567,16 +567,18 @@ void mem_copy(uint32_t prgStartAd, uint32_t sector_Ad, uint32_t accessSize)
 *****************************************************************/
 void dgG2InfoSpiflash0_BP(void)
 {
+	char		str[16];
+	uint32_t	bootProgramSize;
+	uint32_t	spiFlashStatAdd, rdBufstatAdd;
+	uintptr_t	readAdd;
+
+#if ((INTERNAL_MEMORY_ONLY == 0) && (DDR_PARAM_LOAD == 1))
 	if (f_ddr_param_initialized == 0)
 	{
 		PutStr("DDR not initialized, please send DDR parameters via \'DDRP\' command", 1);
 		return;
 	}
-
-	char		str[16];
-	uint32_t	bootProgramSize;
-	uint32_t	spiFlashStatAdd, rdBufstatAdd;
-	uintptr_t	readAdd;
+#endif
 
 	PutStr("=== SPI Boot Parameter Information  ===", 1);
 	InitRPC_Mode();
@@ -604,16 +606,18 @@ void dgG2InfoSpiflash0_BP(void)
 *****************************************************************/
 void dgG2InfoSpiflash0_BP_S(void)
 {
+	char		str[16];
+	uint32_t	change, size;
+	uint32_t	spiFlashStatAdd,rdBufstatAdd;
+	uintptr_t	signatureAdd, bootProgramAdd;
+
+#if ((INTERNAL_MEMORY_ONLY == 0) && (DDR_PARAM_LOAD == 1))
 	if (f_ddr_param_initialized == 0)
 	{
 		PutStr("DDR not initialized, please send DDR parameters via \'DDRP\' command", 1);
 		return;
 	}
-
-	char		str[16];
-	uint32_t	change, size;
-	uint32_t	spiFlashStatAdd,rdBufstatAdd;
-	uintptr_t	signatureAdd, bootProgramAdd;
+#endif
 
 	change = CHANGE_OFF;
 
@@ -702,12 +706,6 @@ void dgClearSpiflash0(void)
 //////////////////////////////////////////
 static void XLoadSpiflash0_2(uint32_t mode)
 {
-	if (f_ddr_param_initialized == 0)
-	{
-		PutStr("DDR not initialized, please send DDR parameters via \'DDRP\' command", 1);
-		return;
-	}
-
 	char		str[64];
 	uint32_t	readManuId, readDevId;
 
@@ -725,6 +723,14 @@ static void XLoadSpiflash0_2(uint32_t mode)
 
 	uint32_t	WrittenSize;
 	uint32_t	RemainingSize;
+
+#if ((INTERNAL_MEMORY_ONLY == 0) && (DDR_PARAM_LOAD == 1))
+	if (f_ddr_param_initialized == 0)
+	{
+		PutStr("DDR not initialized, please send DDR parameters via \'DDRP\' command", 1);
+		return;
+	}
+#endif
 
 	PutStr("===== Qspi writing of RZ/G2 Board Command =============",1);
 	PutStr("Load Program to Spiflash",1);
