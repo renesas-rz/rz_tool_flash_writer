@@ -142,7 +142,7 @@ void ddr_setup(opt_delay_flg_t runOptDelay)
 
 	// Step15
 	while ((read_phy_reg(DDRPHY_R42) & 0x00000003) != sl_lanes);
-#if DDR_DEUB
+#if DDR_DEBUG
 	PutStr("  Step15 completed", 1);
 #endif
 

@@ -3,14 +3,16 @@
 <Div Align="right">
 Renesas Electronics Corporation
 
-Mar-06-2026
+Jul-30-2026
 </Div>
 
-DDR Tools are essential utilities provided by Renesas to assist developers in configuring, tuning, and verifying the operation of DDR memory (DDR3L/DDR4) on the RZ/G2L MPU. 
+The RZ/G2L Flash Writer is sample software for Renesas RZ/G2L MPU. It downloads binary images from a host PC via SCIF or USB and writes those images to Serial NOR Flash or eMMC.
+
+The RZ/G2L DDR Tools, based on the RZ/G2L Flash Writer, are essential utilities provided by Renesas to help developers configure, tune, and verify DDR3L/DDR4 memory operation on the RZ/G2L MPU.
 
 ## 1. Overview
 
-This document explains about RZ/G2L DDR Tools sample software for Renesas RZ/G2L Group MPUs.
+This document explains the RZ/G2L DDR Tools for Renesas RZ/G2L MPU, which is based on the RZ/G2L Flash Writer.
 
 The RZ/G2L DDR Tools is downloaded from the Host PC via SCIF by boot ROM.
 
@@ -20,13 +22,17 @@ And the RZ/G2L DDR Tools loads the DDR parameters from the Host PC via SCIF and 
 
 [Chapter 3](#3-software) describes the software.
 
-[Chapter 4](#4-how-to-build-the-rzg2-flash-writer) explains example of how to build the RZ/G2L DDR Tools.
+[Chapter 4](#4-how-to-build-the-rzg2l-ddr-tools) explains example of how to build the RZ/G2L DDR Tools.
 
-[Chapter 5](#5-how-to-run-the-rzg2-flash-writer) explains example of how to perform the RZ/G2L DDR Tools.
+[Chapter 5](#5-how-to-run-the-rzg2l-ddr-tools) explains example of how to perform the RZ/G2L DDR Tools.
 
 [Chapter 6](#6-error-case-to-handle) explains how to handle error case.
 
 [Chapter 7](#7-revision-history) explains revision history.
+
+> [!NOTE]
+>
+> This sample software does not support the file system. Therefore, it can only write raw images to Serial NOR Flash.
 
 ### 1.1. License
 
@@ -98,10 +104,10 @@ This package has the following functions.
 - Write binary images to the user data area of an eMMC.
 - Erase the boot partition of an eMMC.
 - Erase the user data area of an eMMC.
-- Loading DDR parameters
-- Step-by-Step Training Message Log
-- DQ Margin Checker
-- Stress Checker
+- Load DDR parameters.
+- Step-by-Step Training Message Log.
+- Run the DQ Margin Checker.
+- Run the stress checker.
 - Change the SCIF baud rate setting.
 - Display the command help.
 
@@ -248,6 +254,10 @@ Please note that for eMMC booting, the following EXT_CSD registers need to be mo
 
 #### 3.3.5. Write to the S-record format images to the eMMC
 
+> [!NOTE]
+>
+> In case `DDR_PARAM_LOAD` is enabled (refer to [4.3. Build the RZ/G2L DDR Tools](#43-build-the-rzg2l-ddr-tools)). Please make sure the DDR parameters are loaded successfully (refer to [3.3.7. Store DDR parameters into internal SRAM](#337-store-ddr-parameters-into-internal-sram)).
+
 This command writes the S-record format image to any partition of the eMMC.
 
 ##### Example of writing data for the eMMC boot
@@ -318,6 +328,10 @@ Selected partition has been erased.
 
 #### 3.3.7. Store DDR parameters into internal SRAM
 
+> [!NOTE]
+>
+> To use this feature. Please enable `DDR_PARAM_LOAD` when building the RZ/G2L DDR Tools (refer to [4.3. Build the RZ/G2L DDR Tools](#43-build-the-rzg2l-ddr-tools)).
+
 This command stores DDR parameters into internal SRAM
 
 The following shows the procedure of this command.
@@ -335,7 +349,7 @@ Input file size with 0xEC0 = 3,776 bytes
 Please Input File size(byte) : H'EC0
 Please send ! (binary)
 ```
-Send DDR parameter file (binary) from PC. You can use this sample file "DDR_Parameters_Normal.bin".
+Send DDR parameter file (binary) from PC. You can use this sample file "DDR_Parameters_Normal.bin" (refer to [4.4. Generate DDR parameters (*.bin)](#44-generate-ddr-parameters-bin)). After the DDR parameters are loaded, Eye Opening Tool runs automatically. The raw test result like below is output on the terminal.
 
 ```text
 >DDRP
@@ -368,9 +382,12 @@ Step32 completed
 DDR init completed
 >
 ```
-If all init steps are successful, it will print "DDR init completed"
 
 #### 3.3.8. Simple write-then-read checking of DDR
+
+> [!NOTE]
+>
+> To use this feature. Please enable `DDR_PARAM_LOAD` when building the RZ/G2L DDR Tools (refer to [4.3. Build the RZ/G2L DDR Tools](#43-build-the-rzg2l-ddr-tools)) and make sure the DDR parameters are loaded successfully (refer to [3.3.7. Store DDR parameters into internal SRAM](#337-store-ddr-parameters-into-internal-sram)).
 
 This command writes fixed patterns to DDR and verifies them.
 
@@ -401,6 +418,10 @@ CHECK RESULT ---->OK
 
 #### 3.3.9. Random data write-then-read checking of DDR
 
+> [!NOTE]
+>
+> To use this feature. Please enable `DDR_PARAM_LOAD` when building the RZ/G2L DDR Tools (refer to [4.3. Build the RZ/G2L DDR Tools](#43-build-the-rzg2l-ddr-tools)) and make sure the DDR parameters are loaded successfully (refer to [3.3.7. Store DDR parameters into internal SRAM](#337-store-ddr-parameters-into-internal-sram)).
+
 This command writes random data from SRAM to DDR, then reads it back and verifies the result.
 
 sadr and eadr are hexadecimal values that represent the start address, and end address respectively.
@@ -421,6 +442,10 @@ CHECK RESULT ---->OK
 ```
 
 #### 3.3.10. Fixed data write-then-read checking of DDR
+
+> [!NOTE]
+>
+> To use this feature. Please enable `DDR_PARAM_LOAD` when building the RZ/G2L DDR Tools (refer to [4.3. Build the RZ/G2L DDR Tools](#43-build-the-rzg2l-ddr-tools)) and make sure the DDR parameters are loaded successfully (refer to [3.3.7. Store DDR parameters into internal SRAM](#337-store-ddr-parameters-into-internal-sram)).
 
 This command writes a fixed value (e.g., 0xA5) to DDR memory, then reads it back and verifies the result.
 
@@ -585,14 +610,14 @@ $ mkdir -pv ${DDR_TOOLS_DIR}
 $ cd ${DDR_TOOLS_DIR}
 $ git clone https://github.com/renesas-rz/rz_tool_flash_writer.git
 $ cd rz_tool_flash_writer/
-$ git checkout v1.1.0_RZ/G2L
+$ git checkout v1.2.0_RZ/G2L
 ```
 
 ### 4.2. Prepare the compiler
 
 ARM toolchain:
 
-```bash  
+```bash
 $ cd ${DDR_TOOLS_DIR}
 $ wget https://developer.arm.com/-/media/Files/downloads/gnu-a/10.3-2021.07/binrel/gcc-arm-10.3-2021.07-x86_64-aarch64-none-elf.tar.xz
 $ tar xvf gcc-arm-10.3-2021.07-x86_64-aarch64-none-elf.tar.xz
@@ -602,14 +627,32 @@ $ tar xvf gcc-arm-10.3-2021.07-x86_64-aarch64-none-elf.tar.xz
 
 S-record file will be built by the following command.
 
-```bash  
+```bash
 $ cd ${DDR_TOOLS_DIR}/rz_tool_flash_writer/scripts/
 $ ./build_flash_writer_g2l.sh RZG2L_SMARC_PMIC
 ```
 
-Output image will be available in the following directory.
+> [!NOTE]
+>
+> DDR features and Training Message log are enabled by default in `build_flash_writer_g2l.sh`.
+>
+> To disable them, set `DDR_PARAM_LOAD=DISABLE` and `DDR_DEBUG=0` in the build script (`build_flash_writer_g2l.sh`), or remove these options before building the RZ/G2L DDR Tools.
 
-* ${DDR_TOOLS_DIR}/rz_tool_flash_writer/AArch64_output/DDR_Tool_SCIF_RZG2L_SMARC_PMIC_DDR4.mot
+Output image will be available in the following directory:
+
+* ${DDR_TOOLS_DIR}/rz_tool_flash_writer/AArch64_output/Flash_Writer_SCIF_RZG2L_SMARC_PMIC_DDR4_2GB_1PCS.mot
+
+### 4.4. Generate DDR parameters (*.bin)
+
+Run the following command to convert the DDR parameters source code in the flash_writer repository (*.c files) into a binary file:
+
+```bash
+$ cd ${DDR_TOOLS_DIR}/rz_tool_flash_writer/scripts/
+$ ./c2bin.sh ${DDR_TOOLS_DIR}/rz_tool_flash_writer/ddr/g2l/param_mc_C-011_D4-01-1.c ${DDR_TOOLS_DIR}/rz_tool_flash_writer/ddr/common/param_swizzle_T1bc.c
+```
+
+A binary file will be generated at the following path:
+* ${DDR_TOOLS_DIR}/rz_tool_flash_writer/scripts/DDR_Parameters.bin
 
 ## 5. How to run the RZ/G2L DDR Tools
 
@@ -641,7 +684,7 @@ Transfer S-record file after the log output.
 
 S-record file:
 
-- AArch64_output/DDR_Tool_SCIF_RZG2L_SMARC_PMIC_DDR4.mot
+- AArch64_output/Flash_Writer_SCIF_RZG2L_SMARC_PMIC_DDR4_2GB_1PCS.mot
 
 After the transfer has succeeded, the following log will be shown.
 
@@ -652,6 +695,13 @@ Product Code : RZ/G2L
 ```
 
 Please enter the any key from the console to continue.
+
+### 5.2. Prepare for boot from the Serial Flash and eMMC
+
+To boot from the eMMC, need to change the DIP switch setting.
+
+Regarding the DIP switch configuration on the board, refer to [Related Document](#related-document) No.4.
+
 
 ## 6. Error case to handle
 
@@ -665,3 +715,4 @@ Describe the revision history of RZ/G2L DDR Tools.
 | -------- | ----------- | ------------------------------------------------------------------------------ |
 | v1.0.0   | Jul-25-2025 | - First release.<br>- Support RZ/G2L PMIC EVK board.                           |
 | v1.1.0   | Mar-06-2026 | - Use a shared .mot file for both eMMC and DDR Tools.<br>- Add helper scripts. |
+| v1.2.0   | Jul-30-2026 | - Add DDR_PARAM_LOAD and DDR_DEBUG options.                                    |
