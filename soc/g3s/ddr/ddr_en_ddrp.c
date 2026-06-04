@@ -23,8 +23,8 @@ static void phyinit_d2h_2d(void);
 static void phyinit_mc(void);
 static void phyinit_i(void);
 static void phyinit_j(void);
-static void	save_retcsr(void);
-static void	restore_retcsr(void);
+static void save_retcsr(void);
+static void restore_retcsr(void);
 
 char ddr_version_str[DDR_VERSION_STR];
 uint32_t param_setup_mc[PARAM_SETUP_MC_MAX][2];
