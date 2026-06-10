@@ -3,7 +3,7 @@
 <Div Align="right">
 Renesas Electronics Corporation
 
-May-15-2026
+Jul-30-2026
 </Div>
 
 The RZ/G3L Flash Writer is sample software for Renesas RZ/G3L MPU. It downloads binary images from a host PC via SCIF or USB and writes those images to Serial NOR Flash or eMMC.
@@ -100,7 +100,7 @@ This package has the following functions.
 - Write binary images to the user data area of an eMMC.
 - Erase the boot partition of an eMMC.
 - Erase the user data area of an eMMC.
-- Load the DDR parameters as default first, then override them with the parameters loaded using the DDRP command.
+- Load DDR parameters.
 - Run the Eye Opening Tool.
 - Display training message.
 - Run the stress checker.
@@ -344,14 +344,14 @@ Example:
 >EM_SECSD
   Please Input EXT_CSD Index(H'00 - H'1FF) :b1
   EXT_CSD[B1] = 0x00
-  Please Input Value(H'00 - H'FF) :2
-  EXT_CSD[B1] = 0x02
+  Please Input Value(H'00 - H'FF) :a
+  EXT_CSD[B1] = 0x0A
 ```
 
 #### eMMC Boot Settings
 
 Please note that for eMMC booting, the following EXT_CSD registers need to be modified:
- - EXT_CSD[**B1**] = **0x02**
+ - EXT_CSD[**B1**] = **0x0A**
  - EXT_CSD[**B3**] = **0x08**
 
 #### 3.3.7. Write to the S-record format images to the eMMC
@@ -655,7 +655,7 @@ $ mkdir -pv ${DDR_TOOLS_DIR}
 $ cd ${DDR_TOOLS_DIR}
 $ git clone https://github.com/renesas-rz/rz_tool_flash_writer
 $ cd rz_tool_flash_writer/
-$ git checkout rz_g3l
+$ git checkout v1.2.0_RZ/G3L
 ```
 
 ### 4.2. Prepare the compiler
@@ -755,5 +755,4 @@ Describe the revision history of RZ/G3L DDR Tools.
 
 | Revision | Date        |  Descriptions                                   |
 | -------- | ----------- | ----------------------------------------------- |
-| v1.0.0   | May-15-2026 | - First release.<br>- Support RZ/G3L EVK board. |
-
+| v1.0.0   | Jul-30-2026 | - First release.<br>- Support RZ/G3L EVK board. |
