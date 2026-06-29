@@ -711,8 +711,8 @@ TBD
 
 Describe the revision history of RZ/G2L DDR Tools.
 
-| Revision | Date        |  Descriptions                                                                  |
-| -------- | ----------- | ------------------------------------------------------------------------------ |
-| v1.0.0   | Jul-25-2025 | - First release.<br>- Support RZ/G2L PMIC EVK board.                           |
-| v1.1.0   | Mar-06-2026 | - Use a shared .mot file for both eMMC and DDR Tools.<br>- Add helper scripts. |
-| v1.2.0   | Jul-30-2026 | - Add DDR_PARAM_LOAD and DDR_DEBUG options.                                    |
+| Revision | Date        |  Descriptions                                                                                                        |
+| -------- | ----------- | -------------------------------------------------------------------------------------------------------------------- |
+| v1.0.0   | Jul-25-2025 | - First release.<br>- Support RZ/G2L PMIC EVK board.                                                                 |
+| v1.1.0   | Mar-06-2026 | - Use a shared .mot file for both eMMC and DDR Tools.<br>- Add helper scripts.                                       |
+| v1.2.0   | Jul-30-2026 | - Add DDR_PARAM_LOAD and DDR_DEBUG options.<br>- RZG2L DDR Board Config Structure Generation Tool v4.0.0 compatible. |
