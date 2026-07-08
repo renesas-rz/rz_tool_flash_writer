@@ -11,8 +11,8 @@
 /**********************
 *  TITLE              *
 ***********************/
-#define WRITER_VERSION	"V0.50"		/* Software Version */
-#define WRITER_DATE	"Mar.04,2026"	/* Release date */
+#define WRITER_VERSION	"V1.00"		/* Software Version */
+#define WRITER_DATE	"Jul.07,2026"	/* Release date */
 #define	SOC_NAME "RZ/G3L"
 
 #define	DDR_CHECK_AREA1		0x000000040000000UL
